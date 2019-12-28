@@ -543,3 +543,136 @@ describe('Timeline', () => {
   })
 })
 ```
+
+# 2.0 Typesafe Vuex with `vuex-smart-module`
+
+This next section will be focused on a quick introduction to Vuex, the official Flux store for Vue. We will use the helper library `vuex-smart-module`, written by the maintainer of Vuex, to get typesafety. `vuex-smart-module` is just some convinience methods on top of Vuex to let us leverage the full power of TypeScript. We wil create the `posts` store, then use it to render the posts on the Timeline.
+
+Coding: Install the module, brief intro. Also install moment and @types/moment
+
+https://github.com/ktsn/vuex-smart-module
+
+# 2.1 Creating the Posts Store
+
+Let's get started on the post store. I've created a `posts` directory in the `store` directory, containing and `index.ts` file and a `__tests__` directory with a `posts.spec.ts`. We will write tests for the store, as well.
+
+Coding: posts/index.ts, src/types.ts
+
+```ts
+import { Moment } from 'moment'
+
+export interface Post {
+  id: number
+  title: string
+  markdown: string
+  html: string
+  created: Moment
+  authorId: number
+  likes: number
+  tags: string[]
+}
+```
+
+```ts
+import { Module, Mutations } from 'vuex-smart-module'
+import { Post } from '@/types'
+
+export interface State {
+  touched: boolean
+  loading: boolean
+  ids: number[]
+  all: { [key: string]: Post }
+}
+
+class PostsState implements State {
+  touched = false
+  loading = false
+  ids: number[] = []
+  all: { [key: string]: Post } = {}
+}
+```
+
+Coding: Mutations
+
+```ts
+class PostsMutations extends Mutations<PostsState> {
+  SET_POSTS(posts: Post[]) {
+    const ids: number[] = []
+    const all: { [key: string]: Post } = {}
+
+    for (const post of posts) {
+      all[post.id] = post
+      ids.push(post.id)
+    }
+
+    this.state.all = all
+    this.state.ids = ids
+  }
+}
+
+const posts = new Module({
+  state: PostsState,
+  mutations: PostsMutations
+})
+```
+
+Coding: HashMap Interface
+
+```ts
+export interface HashMap<T> {
+  [key: string]: T
+}
+```
+
+# 2.2 Testing the Posts Mutation
+
+Before going any further, let's write a test for the mutation, to make sure if it behaving correctly.
+
+Coding: Write a test
+
+```ts
+import moment from 'moment'
+
+import { State, PostsMutations } from '../index'
+import { inject } from 'vuex-smart-module'
+import { Post } from '@/types'
+
+const post: Post = {
+  title: 'title',
+  content: 'content',
+  markdown: '<h1>Hello</h1>',
+  authorId: 1,
+  likes: 10,
+  id: 1,
+  tags: [],
+  created: moment()
+}
+
+const state: State = {
+  touched: false,
+  loading: false,
+  ids: [],
+  all: {}
+}
+
+describe('mutations - SET_POSTS', () => {
+  it('bulk inserts posts to the state', () => {
+    const mutations = inject(PostsMutations, {
+      state
+    })
+
+    mutations.SET_POSTS([ post ])
+
+    expect(state.ids).toEqual([ 1 ])
+    expect(state.all[1]).toEqual(post)
+  })
+})
+```
+
+Now, let's move the mock post to a dedicated mock directory. I made a `resources.ts` file.
+
+Coding: Move `post` to resources
+
+Now we have a mutation to add posts to post state. Next, we need a way to fetch the posts in the first place, for example from an API. Vuex provides a solution in the form of actions. In the next video, we will write a type-safe action and follow it up with a test.
+
+# 2.3 Writing a Type Safe Action
