@@ -334,7 +334,7 @@ Coding: impoort `ref` and use it to make the active tab class change
     <a
       v-for="tab in tabs"
       :key="tab"
-      :class="[ tab === activeTab ? 'is-active' : 'active']"
+      :class="[ tab === activeTab ? 'is-active' : '']"
     >
       {{ tab }}
     </a>
@@ -368,7 +368,7 @@ Coding: Add a setActiveTab method and Period type. Explain `ref` using proxy ref
     <a
       v-for="tab in tabs"
       :key="tab"
-      :class="[ tab === activeTab ? 'is-active' : 'active']"
+      :class="[ tab === activeTab ? 'is-active' : '']"
       @click="() => setActiveTab(tab)"
     >
       {{ tab }}
@@ -407,3 +407,139 @@ export type Period = 'Today' | 'This Week' | 'This Month'
 ```
 
 This is great. But we had to test it by hand - let's add our first unit test, using Vue Test Utils, to make sure we don't break this feature as we continue development.
+
+# 1.7 Intro to Vue Test Utils - Testing the Timeline component
+
+Before building any more features, we will add a unit test to make sure we do noot break the tabs feature as we continue development. Open Timeline.spec.ts, and the following basic test code:
+
+```ts
+import Vue from 'vue'
+import Composition from '@vue/composition-api'
+Vue.use(Composition)
+
+import Timeline from '../Timeline.vue'
+
+describe('Timeline', () => {
+  it('changes active tab when clicked', () => {
+  })
+})
+```
+
+We use the global `describe` function to specify the file or component we are testing, and different scenarios with the `it` function. Next, we will import the `mount` method from VTU, and use it to `mount` the Timeline component. `mount` renders the component to an in-memory DOM using a library called JS DOM. It also creates a `wrapper` around the component, providing some useful methods for testing.
+
+Coding: mount the Timeline component. Show how to use Jest's watch.
+
+```ts
+import Vue from 'vue'
+import { mount } from '@vue/test-utils'
+import Composition from '@vue/composition-api'
+Vue.use(Composition)
+
+import Timeline from '../Timeline.vue'
+
+describe('Timeline', () => {
+  it('changes active tab when clicked', () => {
+    const wrapper = mount(Timeline)
+
+    console.log(wrapper.html())
+  })
+})
+```
+
+Let's verify that Today is the active tab. Then we will click another tab, and verify it changed.
+
+Coding: Talk about find, findAll, trigger, and classes.contains.
+
+```ts
+import Vue from 'vue'
+import { mount } from '@vue/test-utils'
+import Composition from '@vue/composition-api'
+Vue.use(Composition)
+
+import Timeline from '../Timeline.vue'
+
+describe('Timeline', () => {
+  it('changes active tab when clicked', () => {
+    const wrapper = mount(Timeline)
+    expect(wrapper.find('a').classes()).toContain('is-active')
+
+    wrapper.findAll('a').at(1).trigger('click')
+    expect(wrapper.findAll('a').at(1).classes()).toContain('is-active')
+  })
+})
+```
+
+# 1.8 Improving the test with data attributes and await nextTick
+
+The test we wrote in the previous video works great, however there are a few improvements we can make. First, we will start by addressing one common problem Vue unit tests suffer from; asynchronous rendering.
+
+Coding: Explain nextTick and async, and using onUpdated.
+
+```vue
+<script>
+onUpdated(() => {
+  // this will be called when the DOM updates.
+  console.log('Updating')
+})
+</script>
+```
+
+```ts
+import Vue from 'vue'
+import { mount } from '@vue/test-utils'
+import Composition from '@vue/composition-api'
+Vue.use(Composition)
+
+import Timeline from '../Timeline.vue'
+
+describe('Timeline', () => {
+  it('changes active tab when clicked', async () => {
+    const wrapper = mount(Timeline)
+    expect(wrapper.find('a').classes()).toContain('is-active')
+
+    wrapper.findAll('a').at(1).trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.findAll('a').at(1).classes()).toContain('is-active')
+  })
+})
+```
+
+Coding: `data-test` attributes
+
+```vue
+<template>
+  <p class="panel-tabs">
+    <a
+      v-for="tab in tabs"
+      :data-test="tab"
+      :key="tab"
+      :class="[ tab === activeTab ? 'is-active' : '']"
+      @click="() => setActiveTab(tab)"
+    >
+      {{ tab }}
+    </a>
+  </p>  
+</template>
+```
+
+```ts
+import Vue from 'vue'
+import { mount } from '@vue/test-utils'
+import Composition from '@vue/composition-api'
+Vue.use(Composition)
+
+import Timeline from '../Timeline.vue'
+
+describe('Timeline', () => {
+  it('changes active tab when clicked', async () => {
+    const wrapper = mount(Timeline)
+    expect(wrapper.find('[data-test="Today"]').classes()).toContain('is-active')
+
+    wrapper.findAll('[data-test="This Week"').trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('[data-test="This Week"]').classes()).toContain('is-active')
+  })
+})
+```
