@@ -32,5 +32,6 @@ describe('TimelineItem', () => {
     wrapper.find('[data-test-likes]').trigger('click')
 
     expect(wrapper.emitted().like).toHaveLength(1)
+    expect(wrapper.emitted().like[0]).toEqual([ { postId: 1 } ])
   })
 })

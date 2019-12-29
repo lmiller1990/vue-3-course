@@ -1,4 +1,3 @@
-import VueRouter from 'vue-router'
 import { mount } from '@vue/test-utils'
 
 import { createTestVue } from '@/testHelper'
@@ -29,7 +28,10 @@ describe('Timeline', () => {
   it('changes active tab when clicked', async () => {
     const wrapper = mount(Timeline, {
       localVue: createTestVue(),
-      router: new VueRouter({ mode: 'history' }),
+      stubs: {
+        RouterLink: true,
+        Portal: true
+      }
     })
     expect(wrapper.find('[data-test="Today"]').classes()).toContain('is-active')
 
@@ -42,11 +44,35 @@ describe('Timeline', () => {
   it('renders posts', async () => {
     const wrapper = mount(Timeline, {
       localVue: createTestVue(),
-      router: new VueRouter({ mode: 'history' }),
+      stubs: {
+        RouterLink: true,
+        Portal: true
+      }
     })
     expect(wrapper.find('[data-test="Today"]').classes()).toContain('is-active')
 
     expect(mockFetchAll).toHaveBeenCalled()
     expect(wrapper.findAll(TimelineItem)).toHaveLength(1)
+  })
+
+  it('shows and hides a modal', async () => {
+    const wrapper = mount(Timeline, {
+      localVue: createTestVue(),
+      stubs: {
+        RouterLink: true,
+        Portal: true
+      }
+    })
+    expect(wrapper.find('[data-test-modal]').exists()).toEqual(false)
+
+    wrapper.find('[data-test-likes]').trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('[data-test-modal]').exists()).toEqual(true)
+
+    wrapper.find('[data-test-hide-modal]').trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('[data-test-modal]').exists()).toEqual(false)
   })
 })

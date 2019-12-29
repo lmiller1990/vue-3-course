@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <PortalTarget name="modal"></PortalTarget>
     <TopNav />
 
     <section class="section">

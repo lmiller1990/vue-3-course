@@ -1073,7 +1073,7 @@ describe('TimelineItem', () => {
 
 Now is a great time to revisit why doing `Vue.use` in a unit test is not ideal, and do a small refactor to our tests more concise. I've created a `src/testHelper.ts` file.
 
-Coding: testHelper.ts, update Timeline and TimelineItem.
+Coding: testHelper.ts, update Timeline and TimelineItem. Also, show how to use `stubs` in Timeline instead of using a real router.
 
 ```ts
 import VueRouter from 'vue-router'
@@ -1094,6 +1094,7 @@ export {
 ```
 
 ```ts
+  // with router
   it('renders posts', async () => {
     const wrapper = mount(Timeline, {
       localVue: createTestVue(),
@@ -1104,6 +1105,17 @@ export {
     expect(mockFetchAll).toHaveBeenCalled()
     expect(wrapper.findAll(TimelineItem)).toHaveLength(1)
   })
+
+  // with stubs
+  it('renders posts', async () => {
+    const wrapper = mount(Timeline, {
+      localVue: createTestVue(),
+      stubs: {
+        RouterLink: true
+      }
+    })
+    expect(wrapper.find('[data-test="Today"]').classes()).toContain('is-active')
+
 ```
 
 # 3.4 Using `emitted` to test events
@@ -1114,7 +1126,7 @@ Coding: show how `emitted` is an array of events, and how to use `ctx.emit`.
 
 ```ts
 const handleLike = () => {
-  ctx.emit('like')
+    ctx.emit('like', { postId: props.post.id })
 }
 
 it('emits a like event when like is clicked', () => {
@@ -1129,11 +1141,108 @@ it('emits a like event when like is clicked', () => {
   wrapper.find('[data-test-likes]').trigger('click')
 
   expect(wrapper.emitted().like).toHaveLength(1)
+  expect(wrapper.emitted().like[0]).toEqual([ { postId: 1 } ])
 })
 ```
 
-# 3.5 Using Portals to render a modal
+# 3.5 Using Portals to render a modal, testing with exists
 
 Vue 3 has a new completely new feature - portals. You can use a portal to render a component in a completely different place. In this video, we will render a form asking the user to sign up when they click on the Like button if they have not already logged in.
 
 Coding: Add `Portal` to App.vue. Add the listener for `like` in Timeline.vue. Render something with the portal. Write a test.
+
+```ts
+// Timeline.vue
+<TimelineItem
+  v-for="post in allPosts"
+  :key="post.id"
+  :post="post"
+  @like="handleLike"
+>
+</TimelineItem>
+
+<Portal to="modal">
+  <div data-test-modal v-if="showModal">
+    This is a modal
+  </div>
+</Portal>
+
+const showModal = ref(false)
+const authenticated = computed(() => false)
+const handleLike = ({ postId }: { postId: number }) => {
+  if (authenticated.value) {
+  // if authenticated, "like" a post
+    return
+  }
+
+  showModal.value = true
+}
+
+// Timeline.spec.ts
+it('renders a modal when like is clicked', async () => {
+  const wrapper = mount(Timeline, {
+    localVue: createTestVue(),
+    stubs: {
+      RouterLink: true,
+      Portal: true
+    }
+  })
+  expect(wrapper.find('[data-test-modal]').exists()).toEqual(false)
+
+  wrapper.find('[data-test-likes]').trigger('click')
+  await wrapper.vm.$nextTick()
+
+  expect(wrapper.find('[data-test-modal]').exists()).toEqual(true)
+})
+```
+
+# 3.6 Improve the Modal UI
+
+To finish this section off, let's make the modal UI look a bit better by adding some classes provided by Bulma.
+
+
+```ts
+<Portal to="modal">
+  <div 
+    v-if="showModal"
+    data-test-modal 
+    class="modal is-active"
+  >
+    <div 
+      data-test-hide-modal
+      class="modal-background"
+      @click="showModal = false"
+    >
+    </div>
+    <div class="modal-content">
+      <div class="card">
+        <div class="section">
+          Please sign up to like this post.
+        </div>
+      </div>
+    </div>
+  </div>
+</Portal>
+
+// Timeline.spec.ts 
+it('shows and hides a modal', async () => {
+  const wrapper = mount(Timeline, {
+    localVue: createTestVue(),
+    stubs: {
+      RouterLink: true,
+      Portal: true
+    }
+  })
+  expect(wrapper.find('[data-test-modal]').exists()).toEqual(false)
+
+  wrapper.find('[data-test-likes]').trigger('click')
+  await wrapper.vm.$nextTick()
+
+  expect(wrapper.find('[data-test-modal]').exists()).toEqual(true)
+
+  wrapper.find('[data-test-hide-modal]').trigger('click')
+  await wrapper.vm.$nextTick()
+
+  expect(wrapper.find('[data-test-modal]').exists()).toEqual(false)
+})
+```

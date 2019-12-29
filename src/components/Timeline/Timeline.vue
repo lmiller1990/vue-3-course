@@ -2,7 +2,6 @@
   <nav class="panel is-primary">
     <p class="panel-tabs">
       <a
-
         v-for="tab in tabs"
         :data-test="tab"
         :key="tab"
@@ -17,8 +16,31 @@
       v-for="post in allPosts"
       :key="post.id"
       :post="post"
+      @like="handleLike"
     >
     </TimelineItem>
+
+    <Portal to="modal">
+      <div 
+        v-if="showModal"
+        data-test-modal 
+        class="modal is-active"
+      >
+        <div 
+          data-test-hide-modal
+          class="modal-background"
+          @click="showModal = false"
+        >
+        </div>
+        <div class="modal-content">
+          <div class="card">
+            <div class="section">
+              Please sign up to like this post.
+            </div>
+          </div>
+        </div>
+      </div>
+    </Portal>
   </nav>
 </template>
 
@@ -46,9 +68,19 @@ export default createComponent({
 
     const tabs: Period[] = ['Today', 'This Week', 'This Month']
     const activeTab = ref<Period>('Today')
-
     const setActiveTab = (tab: Period) => {
       activeTab.value = tab
+    }
+
+    const showModal = ref(false)
+    const authenticated = computed(() => false)
+    const handleLike = ({ postId }: { postId: number }) => {
+      if (authenticated.value) {
+      // if authenticated, "like" a post
+        return
+      }
+
+      showModal.value = true
     }
 
     return {
@@ -56,6 +88,8 @@ export default createComponent({
       tabs,
       activeTab,
       setActiveTab,
+      showModal,
+      handleLike,
     }
   }
 })

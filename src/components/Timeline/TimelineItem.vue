@@ -41,7 +41,7 @@ export default createComponent({
     const link = `/posts/${props.post.id}`
     const author = 'Lachlan'
     const handleLike = () => {
-      ctx.emit('like')
+      ctx.emit('like', { postId: props.post.id })
     }
 
     return {
