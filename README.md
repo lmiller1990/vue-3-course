@@ -1500,3 +1500,113 @@ setup(props, ctx) {
   }
 })
 ```
+
+# 4.4 Introducing `marked` to convert the markdown to HTML
+
+We will use the awesome marked.js library to handle converting the markdown to HTML. 
+
+Coding: install marked. `yarn add marked @types/marked`. Show how the conversion is working, explain about the styling.
+
+Install sass-loader, node-sass, demo multiple `style` tags.
+
+```
+watch(() => markdown.value, (val) => {
+  marked(markdown.value, {}, (err, res) => {
+    if (err) {
+      return
+    }
+    content.value = res
+  })
+})
+
+// ...
+
+
+<style lang="scss">
+@import '../../markdown.scss';
+</style>
+```
+
+```
+// markdown.scss
+#content {
+  h1 { font-size: 1.7rem !important; }
+  h2 { font-size: 1.3rem !important; }
+  h3 { font-size: 1.1rem !important; }
+
+  h1, h2, h3 {
+    font-weight: bold;
+  }
+
+  p, ul, ol {
+    padding: 5px 0;
+  }
+
+  li {
+    list-style: disc;
+    margin-left: 15px;
+  }
+}
+```
+
+# 4.5 Adding a test for the markdown functionality
+
+The markdown conversion has quite a few steps involved - it's also a huge part of the application, which makes certain candidate for thorough testing. Let's start off.
+
+Coding: explain about nextTick again.
+
+```
+import { mount } from '@vue/test-utils'
+
+import { createTestVue } from '@/testHelper'
+import PostWriter from '@/components/PostWriter/PostWriter.vue'
+import { post } from '@/resources'
+
+describe('PostWriter', () => {
+  it('converts the post content to markdown on first render', async () => {
+    const wrapper = mount(PostWriter, {
+      localVue: createTestVue(),
+      propsData: {
+        post: {
+          ...post,
+          markdown: '# My great post!\nThis is a *really exciting* post.',
+        }
+      }
+    })
+
+    await wrapper.vm.$nextTick()
+
+    expect(
+      wrapper.find('#content').element.innerHTML
+    ).toEqual(
+      '<h1 id="my-great-post">My great post!</h1>\n<p>This is a <em>really exciting</em> post.</p>\n'
+    )
+  })
+
+  it('updates the preview when markdown is updated', async () => {
+    const wrapper = mount(PostWriter, {
+      localVue: createTestVue(),
+      propsData: {
+        post: {
+          ...post,
+          markdown: '# My great post!\nThis is a *really exciting* post.',
+        }
+      }
+    })
+
+    await wrapper.vm.$nextTick()
+    wrapper.find('#markdown').element.innerText = '## My new post'
+    wrapper.find('#markdown').trigger('input')
+    await wrapper.vm.$nextTick()
+
+    expect(
+      wrapper.find('#content').element.innerHTML
+    ).toEqual(
+      '<h2 id="my-new-post">My new post</h2>\n'
+    )
+  })
+})
+
+```
+
+# 4.5 Adding syntax highlighting with higlight.js

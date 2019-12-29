@@ -33,6 +33,7 @@
 </template>
 
 <script lang="ts">
+import marked from 'marked'
 import { createComponent, ref, onMounted, watch } from '@vue/composition-api'
 
 import { Post } from '@/types'
@@ -62,7 +63,12 @@ export default createComponent({
     })
 
     watch(() => markdown.value, (val) => {
-      content.value = val
+      marked(markdown.value, {}, (err, res) => {
+        if (err) {
+          return
+        }
+        content.value = res
+      })
     })
 
     const handleEdit = (e: any) => {
@@ -83,7 +89,11 @@ export default createComponent({
 
 </script>
 
-<style scoped>
+<style lang="scss">
+@import '../../markdown.scss';
+</style>
+
+<style lang="scss">
 #markdown, #content {
   min-height: 400px;
   border: 1px solid #dbdbdb;
@@ -95,5 +105,4 @@ export default createComponent({
   white-space: pre-wrap;
   outline: none;
 }
-
 </style>
