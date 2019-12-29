@@ -1029,7 +1029,7 @@ export default createComponent({
     const link = `/posts/${props.post.id}`
     const author = 'Lachlan'
     const handleLike = () => {
-      ctx.emit('like')
+      // ...
     }
 
     return {
@@ -1065,19 +1065,6 @@ describe('TimelineItem', () => {
     expect(wrapper.find({ name: 'RouterLink' }).attributes('href')).toEqual('/posts/1')
     expect(wrapper.find('[data-test-author]').text()).toContain('Lachlan')
     expect(wrapper.find('[data-test-likes]').text()).toEqual('10')
-  })
-
-  it('emits a like event when like is clicked', () => {
-    const wrapper = mount(TimelineItem, {
-      router: new VueRouter({ mode: 'history' }),
-      propsData: {
-        post: mockPost
-      },
-    })
-
-    wrapper.find('[data-test-likes]').trigger('click')
-
-    expect(wrapper.emitted().like).toHaveLength(1)
   })
 })
 ```
@@ -1118,3 +1105,35 @@ export {
     expect(wrapper.findAll(TimelineItem)).toHaveLength(1)
   })
 ```
+
+# 3.4 Using `emitted` to test events
+
+We need some way to know if the like button was clicked. In Vue 3, we use events to commmunicate between components. VTU provides the awesome `emitted` helper to test events.
+
+Coding: show how `emitted` is an array of events, and how to use `ctx.emit`.
+
+```ts
+const handleLike = () => {
+  ctx.emit('like')
+}
+
+it('emits a like event when like is clicked', () => {
+  const wrapper = mount(TimelineItem, {
+    router: new VueRouter({ mode: 'history' }),
+    localVue: createTestVue(),
+    propsData: {
+      post: mockPost
+    },
+  })
+
+  wrapper.find('[data-test-likes]').trigger('click')
+
+  expect(wrapper.emitted().like).toHaveLength(1)
+})
+```
+
+# 3.5 Using Portals to render a modal
+
+Vue 3 has a new completely new feature - portals. You can use a portal to render a component in a completely different place. In this video, we will render a form asking the user to sign up when they click on the Like button if they have not already logged in.
+
+Coding: Add `Portal` to App.vue. Add the listener for `like` in Timeline.vue. Render something with the portal. Write a test.
