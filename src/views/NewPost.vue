@@ -20,9 +20,9 @@ export default createComponent({
     const newPost: Post = {
       id: 0,
       title: '',
-      content: '',
+      markdown: '# My great post!\nThis is a *really exciting* post.',
       tags: [],
-      markdown: '',
+      content: '',
       created: moment(),
       authorId: 0,
       likes: 0,
