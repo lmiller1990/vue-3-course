@@ -13,18 +13,12 @@
       </a>
     </p>  
 
-    <div
+    <TimelineItem
       v-for="post in allPosts"
       :key="post.id"
-      data-test-post
+      :post="post"
     >
-      <a class="panel-block">
-        <div class="level">
-          {{ post.title }}
-
-        </div>
-      </a>
-    </div>
+    </TimelineItem>
   </nav>
 </template>
 
@@ -33,9 +27,14 @@ import { createComponent, ref, onUpdated, computed } from '@vue/composition-api'
 
 import { usePosts } from '@/store/posts'
 import { Period } from './types'
+import TimelineItem from './TimelineItem.vue'
 
 export default createComponent({
   name: 'Timeline.vue',
+
+  components: {
+    TimelineItem,
+  },
 
   setup(props, ctx) {
     const posts = usePosts(ctx.root.$store)

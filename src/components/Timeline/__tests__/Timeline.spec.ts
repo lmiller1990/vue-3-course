@@ -4,6 +4,7 @@ import Composition from '@vue/composition-api'
 Vue.use(Composition)
 
 import Timeline from '../Timeline.vue'
+import TimelineItem from '../TimelineItem.vue'
 import { post as mockPost } from '@/resources'
 
 const mockFetchAll = jest.fn()
@@ -40,6 +41,6 @@ describe('Timeline', () => {
     const wrapper = mount(Timeline)
 
     expect(mockFetchAll).toHaveBeenCalled()
-    expect(wrapper.findAll('[data-test-post]')).toHaveLength(1)
+    expect(wrapper.findAll(TimelineItem)).toHaveLength(1)
   })
 })

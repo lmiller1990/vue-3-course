@@ -923,4 +923,64 @@ describe('Timeline', () => {
     expect(wrapper.findAll('[data-test-post]')).toHaveLength(1)
   })
 })
-````
+```
+
+# 3.0 Improving the Timeline with a TimelineItem component
+
+In this section, we will expand on the TimelineItem component. We will set up a link to the a page which will show the post, and use Portals, a new feature of Vue to render a component at a completely different location on a page. We will also get more in depth with Vue Router extend our Store to include `users`, in preparation for adding authentication and authorization.
+
+Coding: Demo the features.
+
+# 3.1 Extracting a TimelineItem component and using Props
+
+Since each row on the Timeline is about to get more complicated, we will create a new `TimelineItem.vue` component to hold all the logic. I've created a Timeline.vue component and a test file.
+
+Coding: Move the existing code into TimelineItem. Update spec to use `find(TimelineItem)`. show how to use props.
+
+```vue
+<template>
+  <!-- ... -->
+  <TimelineItem
+    v-for="post in allPosts"
+    :key="post.id"
+    :post="post"
+  >
+  </TimelineItem>
+</template>
+```
+
+```vue
+<template>
+  <a class="panel-block">
+    <div class="level">
+      {{ post.title }}
+    </div>
+  </a>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
+
+import { Post } from '@/types'
+
+export default createComponent({
+  name: 'TimelineItem',
+
+  props: {
+    post: {
+      type: Object as () => Post,
+      required: true,
+    }
+  },
+
+  setup(props, ctx) {
+  }
+})
+</script>
+```
+
+# 3.2 Improving the TimelineItem with RouterLink
+
+Let's make the Timeline Item a bit more interesting now, by adding the author, number of likes and a link to view the content of the article. We will also add a test to make sure everything works correctly.
+
+<!-- Coding: Ti -->
