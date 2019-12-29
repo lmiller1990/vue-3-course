@@ -712,10 +712,132 @@ describe('actions - fetchAll', () => {
 })
 ```
 
+Coding: Lastly, we should register the actions in the posts module:
+
+```ts
+const posts = new Module({
+  state: PostsState,
+  mutations: PostsMutations,
+  actions: PostsActions
+})
+
+export {
+  posts
+}
+```
+
 Now we have a basic Vuex workflow in place, let's see how we can access the posts state in the Timeline component, and render some posts.
 
 # 2.4 Consuming a Vuex store with the Composition API
 
+Before access the posts module, we should import it to the root of our store. Head to `store/index.ts`.
+
+Coding: show that createStore is, in fact, a wrapper around Vuex.
+
+```ts
+import Vue from 'vue'
+import Vuex from 'vuex'
+import { createStore, Module } from 'vuex-smart-module'
+import { posts } from './posts'
+
+Vue.use(Vuex)
+
+const root = new Module({
+  modules: {
+    posts: posts
+  }
+})
+
+const store = createStore(root)
+
+export default store
+```
+
 Traditionally in Vue 2 apps, the Vuex store is available on the `this` instance for a component. This is still true in Vue 3, however because the `setup` function is called before the component is instantiated, we cannot access the `this` instance. There is a few alternatives, which we will look at now.
 
 Coding: Show `this.$store` in `methods`, `ctx` in setup, and `usePosts` to get type safety.
+
+https://github.com/ktsn/vuex-smart-module#method-style-access-for-actions-and-mutations
+
+```ts
+import { posts } from '@/store/posts'
+
+export default createComponent({
+  name: 'Timeline.vue',
+
+  setup(props, ctx) {
+    const postsStore = posts.context(ctx.root.$store)
+  }
+})
+```
+
+Coding: useStore
+
+```ts
+const usePosts = ($store: Store<any>) => {
+  return posts.context($store)
+}
+```
+
+```ts
+import { usePosts } from '@/store/posts'
+
+export default createComponent({
+  name: 'Timeline.vue',
+
+  setup(props, ctx) {
+    const posts = usePosts(ctx.root.$store)
+  }
+})
+```
+
+# 2.5 Calling an Action and Access the Posts with `computed`
+
+Now we can access the store in the Timeline component, let's fetch the posts and render them!
+
+Coding: Call the action. Return `posts` with computed. Use `computed`.
+
+```ts
+<template>
+  <nav class="panel is-primary">
+    <p class="panel-tabs">
+      <a
+        v-for="tab in tabs"
+        :data-test="tab"
+        :key="tab"
+        :class="[ tab === activeTab ? 'is-active' : '']"
+        @click="() => setActiveTab(tab)"
+      >
+        {{ tab }}
+      </a>
+    </p>  
+
+    <div
+      v-for="post in allPosts"
+      :key="post.id"
+    >
+      {{ post.title }}
+    </div>
+  </nav>
+</template>
+
+// ...
+
+posts.actions.fetchAll()
+
+const allPosts = computed(() => {
+  return posts.state.ids.map(id => posts.state.all[id])
+})
+```
+
+AWESOME! Our test is now failing, though. Before fixing it, there is a sneaky refactor we can do, using Vuex. `getters`. Before we get into that, though, we should look at the difference between a `ref` and `computed.
+
+# 2.6 `ref` vs `computed`
+
+Explain `ref` is for primative values that the component updates, and `computed` is for derived, READ ONLY values. Touch on `reactive`.
+
+# 2.7 Accessing Vuex State using Getters
+
+In a previous video, we created a PostsGetters class in the posts store. Getters are a way to access derived data - we will now implement a `allPosts` getter, moving some logic out of the Timeline component to the Vuex store.
+
+Coding:

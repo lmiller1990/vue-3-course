@@ -1,6 +1,7 @@
 import { Module, Mutations, Actions, Getters } from 'vuex-smart-module'
 import { Post, HashMap } from '@/types'
 import { post } from '@/resources'
+import { Store } from 'vuex'
 
 export interface State {
   touched: boolean
@@ -52,5 +53,15 @@ export class PostsActions extends Actions<PostsState, PostsGetters, PostsMutatio
 
 const posts = new Module({
   state: PostsState,
-  mutations: PostsMutations
+  mutations: PostsMutations,
+  actions: PostsActions
 })
+
+const usePosts = ($store: Store<any>) => {
+  return posts.context($store)
+}
+
+export {
+  posts,
+  usePosts,
+}

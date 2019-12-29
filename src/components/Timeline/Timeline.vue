@@ -1,26 +1,44 @@
 <template>
-  <p class="panel-tabs">
-    <a
-      v-for="tab in tabs"
-      :data-test="tab"
-      :key="tab"
-      :class="[ tab === activeTab ? 'is-active' : '']"
-      @click="() => setActiveTab(tab)"
+  <nav class="panel is-primary">
+    <p class="panel-tabs">
+      <a
+        v-for="tab in tabs"
+        :data-test="tab"
+        :key="tab"
+        :class="[ tab === activeTab ? 'is-active' : '']"
+        @click="() => setActiveTab(tab)"
+      >
+        {{ tab }}
+      </a>
+    </p>  
+
+    <div
+      v-for="post in allPosts"
+      :key="post.id"
     >
-      {{ tab }}
-    </a>
-  </p>  
+      {{ post.title }}
+    </div>
+  </nav>
 </template>
 
 <script lang="ts">
-import { createComponent, ref, onUpdated } from '@vue/composition-api'
+import { createComponent, ref, onUpdated, computed } from '@vue/composition-api'
 
+import { usePosts } from '@/store/posts'
 import { Period } from './types'
 
 export default createComponent({
   name: 'Timeline.vue',
 
-  setup() {
+  setup(props, ctx) {
+    const posts = usePosts(ctx.root.$store)
+    posts.actions.fetchAll()
+
+
+    const allPosts = computed(() => {
+      return posts.state.ids.map(id => posts.state.all[id])
+    })
+
     const tabs: Period[] = ['Today', 'This Week', 'This Month']
     const activeTab = ref<Period>('Today')
 
@@ -29,6 +47,7 @@ export default createComponent({
     }
 
     return {
+      allPosts,
       tabs,
       activeTab,
       setActiveTab,
