@@ -676,3 +676,46 @@ Coding: Move `post` to resources
 Now we have a mutation to add posts to post state. Next, we need a way to fetch the posts in the first place, for example from an API. Vuex provides a solution in the form of actions. In the next video, we will write a type-safe action and follow it up with a test.
 
 # 2.3 Writing a Type Safe Action
+
+The next part of the Vuex workflow we will add is an action. An action different to a mutation that it does update the state directly; instead, it receives a commit function, by which it invokes a mutation. An action, unlike a mutation, can perform asynchronous operations. This is where we will make an API call to a server (which we will be stubbing out, but add some artificial delay to simulate a server call).
+
+Coding: Write the action
+
+```ts
+export class PostsActions extends Actions<PostsState, PostsGetters, PostsMutations, PostsActions> {
+  async fetchAll() {
+    // const posts = await axios.get('/api/posts')
+    await delay()
+    this.commit('SET_POSTS', [ post ])
+  }
+}
+```
+
+Although the idea of an action sounds complex, it is really not. You can do whatever post processing of the API that might be necessary before commiting the mutation. You can also call other actions by typing `this.actions.<ACTION>`.
+
+Let's write a quick test for this one.
+
+Coding: Write test, explain jest.fn, async.
+
+```ts
+describe('actions - fetchAll', () => {
+  it('fetches post from an API and commits a mutation', async () => {
+    const commit = jest.fn()
+    const actions = inject(PostsActions, {
+      commit
+    })
+
+    await actions.fetchAll()
+
+    expect(commit).toHaveBeenCalledWith('SET_POSTS', [ post ])
+  })
+})
+```
+
+Now we have a basic Vuex workflow in place, let's see how we can access the posts state in the Timeline component, and render some posts.
+
+# 2.4 Consuming a Vuex store with the Composition API
+
+Traditionally in Vue 2 apps, the Vuex store is available on the `this` instance for a component. This is still true in Vue 3, however because the `setup` function is called before the component is instantiated, we cannot access the `this` instance. There is a few alternatives, which we will look at now.
+
+Coding: Show `this.$store` in `methods`, `ctx` in setup, and `usePosts` to get type safety.
