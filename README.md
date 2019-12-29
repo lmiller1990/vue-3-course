@@ -718,7 +718,8 @@ Coding: Lastly, we should register the actions in the posts module:
 const posts = new Module({
   state: PostsState,
   mutations: PostsMutations,
-  actions: PostsActions
+  actions: PostsActions,
+  getters: PostsGetters
 })
 
 export {
@@ -841,3 +842,42 @@ Explain `ref` is for primative values that the component updates, and `computed`
 In a previous video, we created a PostsGetters class in the posts store. Getters are a way to access derived data - we will now implement a `allPosts` getter, moving some logic out of the Timeline component to the Vuex store.
 
 Coding:
+
+```ts
+// posts.ts
+export class PostsGetters extends Getters<State> {
+  allPosts() {
+    return this.state.ids.map(id => this.state.all[id])
+  }
+}
+
+
+// spec.ts
+const createState = (): State => {
+  return {
+    touched: false,
+    loading: false,
+    ids: [],
+    all: {}
+  }
+}
+
+describe('getters - allPosts', () => {
+  it('returns an array of posts', async () => {
+    const state: State = {
+      ...createState(),
+      ids: [1],
+      all: {
+        1: post
+      }
+    }
+    const getters = inject(PostsGetters, {
+      state
+    })
+
+    expect(getters.allPosts()).toEqual([ post ])
+  })
+})
+```
+
+It works! In the next video, we will fix the failing test, and write one verifying that the Timeline component is correctly rendering the posts.

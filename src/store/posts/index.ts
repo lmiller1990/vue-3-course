@@ -33,6 +33,9 @@ export class PostsMutations extends Mutations<PostsState> {
 }
 
 export class PostsGetters extends Getters<State> {
+  allPosts() {
+    return this.state.ids.map(id => this.state.all[id])
+  }
 }
 
 const delay = () => {
@@ -54,7 +57,8 @@ export class PostsActions extends Actions<PostsState, PostsGetters, PostsMutatio
 const posts = new Module({
   state: PostsState,
   mutations: PostsMutations,
-  actions: PostsActions
+  actions: PostsActions,
+  getters: PostsGetters
 })
 
 const usePosts = ($store: Store<any>) => {

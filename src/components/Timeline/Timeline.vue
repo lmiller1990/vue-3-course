@@ -34,9 +34,8 @@ export default createComponent({
     const posts = usePosts(ctx.root.$store)
     posts.actions.fetchAll()
 
-
     const allPosts = computed(() => {
-      return posts.state.ids.map(id => posts.state.all[id])
+      return posts.getters.allPosts()
     })
 
     const tabs: Period[] = ['Today', 'This Week', 'This Month']
