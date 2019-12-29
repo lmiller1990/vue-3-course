@@ -1,8 +1,7 @@
-import Vue from 'vue'
+import VueRouter from 'vue-router'
 import { mount } from '@vue/test-utils'
-import Composition from '@vue/composition-api'
-Vue.use(Composition)
 
+import { createTestVue } from '@/testHelper'
 import Timeline from '../Timeline.vue'
 import TimelineItem from '../TimelineItem.vue'
 import { post as mockPost } from '@/resources'
@@ -28,7 +27,10 @@ describe('Timeline', () => {
   })
 
   it('changes active tab when clicked', async () => {
-    const wrapper = mount(Timeline)
+    const wrapper = mount(Timeline, {
+      localVue: createTestVue(),
+      router: new VueRouter({ mode: 'history' }),
+    })
     expect(wrapper.find('[data-test="Today"]').classes()).toContain('is-active')
 
     wrapper.findAll('[data-test="This Week"').trigger('click')
@@ -38,7 +40,11 @@ describe('Timeline', () => {
   })
 
   it('renders posts', async () => {
-    const wrapper = mount(Timeline)
+    const wrapper = mount(Timeline, {
+      localVue: createTestVue(),
+      router: new VueRouter({ mode: 'history' }),
+    })
+    expect(wrapper.find('[data-test="Today"]').classes()).toContain('is-active')
 
     expect(mockFetchAll).toHaveBeenCalled()
     expect(wrapper.findAll(TimelineItem)).toHaveLength(1)

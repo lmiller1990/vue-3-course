@@ -983,4 +983,138 @@ export default createComponent({
 
 Let's make the Timeline Item a bit more interesting now, by adding the author, number of likes and a link to view the content of the article. We will also add a test to make sure everything works correctly.
 
-<!-- Coding: Ti -->
+Coding: Add RouterLink and various elements. Write a test. Show how to use propsData, and add a Router to the wrapper. Show the Timeline spec as having errors and hint at an upcoming refactor.
+
+```
+<template>
+  <a class="panel-block">
+    <div class="level">
+      <div>
+        <div>
+          <RouterLink 
+            :to="link"
+            class="link"
+          >
+            {{ post.title }}
+          </RouterLink>
+        </div>
+        <span data-test-author>
+          {{ ` ${post.created.format('Do MMM')} by ${author}.` }}
+        </span>
+        <span data-test-likes @click="handleLike">
+          <i class="far fa-thumbs-up" />
+          {{ post.likes }}
+        </span>
+      </div>
+    </div>
+  </a>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
+
+import { Post } from '@/types'
+
+export default createComponent({
+  name: 'TimelineItem',
+
+  props: {
+    post: {
+      type: Object as () => Post,
+      required: true,
+    }
+  },
+
+  setup(props, ctx) {
+    const link = `/posts/${props.post.id}`
+    const author = 'Lachlan'
+    const handleLike = () => {
+      ctx.emit('like')
+    }
+
+    return {
+      link,
+      author,
+      handleLike,
+    }
+  }
+})
+</script>
+```
+
+```ts
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import { mount } from '@vue/test-utils'
+import Composition from '@vue/composition-api'
+Vue.use(Composition)
+Vue.use(VueRouter)
+
+import TimelineItem from '../TimelineItem.vue'
+import { post as mockPost } from '@/resources'
+
+describe('TimelineItem', () => {
+  it('renders information about the post', () => {
+    const wrapper = mount(TimelineItem, {
+      router: new VueRouter({ mode: 'history' }),
+      propsData: {
+        post: mockPost
+      },
+    })
+
+    expect(wrapper.find({ name: 'RouterLink' }).attributes('href')).toEqual('/posts/1')
+    expect(wrapper.find('[data-test-author]').text()).toContain('Lachlan')
+    expect(wrapper.find('[data-test-likes]').text()).toEqual('10')
+  })
+
+  it('emits a like event when like is clicked', () => {
+    const wrapper = mount(TimelineItem, {
+      router: new VueRouter({ mode: 'history' }),
+      propsData: {
+        post: mockPost
+      },
+    })
+
+    wrapper.find('[data-test-likes]').trigger('click')
+
+    expect(wrapper.emitted().like).toHaveLength(1)
+  })
+})
+```
+
+# 3.3 Adding a createTestVue method to avoid polluting the global Vue
+
+Now is a great time to revisit why doing `Vue.use` in a unit test is not ideal, and do a small refactor to our tests more concise. I've created a `src/testHelper.ts` file.
+
+Coding: testHelper.ts, update Timeline and TimelineItem.
+
+```ts
+import VueRouter from 'vue-router'
+import { createLocalVue } from '@vue/test-utils'
+import Composition from '@vue/composition-api'
+
+const createTestVue = () => {
+  const localVue = createLocalVue()
+  localVue.use(Composition)
+  localVue.use(VueRouter)
+
+  return localVue
+}
+
+export {
+  createTestVue
+}
+```
+
+```ts
+  it('renders posts', async () => {
+    const wrapper = mount(Timeline, {
+      localVue: createTestVue(),
+      router: new VueRouter({ mode: 'history' }),
+    })
+    expect(wrapper.find('[data-test="Today"]').classes()).toContain('is-active')
+
+    expect(mockFetchAll).toHaveBeenCalled()
+    expect(wrapper.findAll(TimelineItem)).toHaveLength(1)
+  })
+```
