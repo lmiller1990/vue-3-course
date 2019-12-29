@@ -1246,3 +1246,135 @@ it('shows and hides a modal', async () => {
   expect(wrapper.find('[data-test-modal]').exists()).toEqual(false)
 })
 ```
+
+# 3.7 Section Summary
+
+We covered a huge amount of content in this series of lectures. We looked at
+
+- using `props` to pass data to child components
+- using `find` with `name`, a selector, and an actual component
+- communicating between components by using events
+- using localVue to avoid polluting the global instance
+- using emitted to test an event was triggered
+- Portals,
+- testing with `exists`
+
+The next section will look at creating the routing to a `posts` page, where we will render a post, as well allowing a user to sign up and log in.
+
+# 4.0 Section Preview
+
+In this section we will build out the `/posts/new` page, which allows a user to compose a new post. We will let them write their posts using markdown, as well as show a real-time preview of the outputted HTML using `marked`. Since the platform is aimed at developers, we will also support syntax highlighting using highlight.js.
+
+Coding: demonstrate section 4.
+
+# 4.1 Adding a `/posts/edit` route.
+
+I've made a `views/NewPost.vue` component and test file, as well as a `components/PostWriter` directory with a file for the component and for the test. We will use the PostWriter component for both composing new posts and editing posts. The NewPost view will simply render the PostWriter, and pass a new post as a prop.
+
+Coding: NewPost.vue, update routes, PostWriter.vue.
+
+
+```
+<template>
+  <PostWriter :post="newPost" />
+</template>
+
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
+import moment from 'moment'
+
+import { Post } from '@/types'
+import PostWriter from '@/components/PostWriter/PostWriter.vue'
+
+export default createComponent({
+  name: 'NewPost',
+
+  components: {
+    PostWriter
+  },
+
+  setup() {
+    const newPost: Post = {
+      id: 0,
+      title: '',
+      content: '',
+      tags: [],
+      markdown: '',
+      created: moment(),
+      authorId: 0,
+      likes: 0,
+    }
+
+    return {
+      newPost,
+    }
+  }
+})
+</script>
+```
+
+```
+import { mount } from '@vue/test-utils'
+
+import { createTestVue } from '@/testHelper'
+import NewPost from '../NewPost.vue'
+import PostWriter from '@/components/PostWriter/PostWriter.vue'
+
+describe('NewPost', () => {
+  it('renders a post writer', () => {
+    const wrapper = mount(NewPost, {
+      localVue: createTestVue(),
+    })
+
+    expect(wrapper.find(PostWriter).exists()).toBe(true)
+  })
+})
+```
+
+```
+<template>
+  <div>Write your new post</div>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
+
+import { Post } from '@/types'
+
+export default createComponent({
+  props: {
+    post: {
+      type: Object as () => Post,
+      required: true,
+    }
+  }
+})
+```
+
+```
+import { mount } from '@vue/test-utils'
+
+import { createTestVue } from '@/testHelper'
+import PostWriter from '@/components/PostWriter/PostWriter.vue'
+
+describe('PostWriter', () => {
+  it('renders', () => {
+    const wrapper = mount(PostWriter, {
+      localVue: createTestVue(),
+    })
+  })
+})
+```
+
+```
+// router/inde.ts
+{
+  path: '/posts/new',
+  name: 'NewPost',
+  component: NewPost
+}
+```
+
+# 4.2 Using v-model and Creating the Layout for the PostWriter
+
+In this lecture we will create the basic layout required for the PostWriter. We will look at `v-model`, a directive to handle two way binding.
