@@ -2,6 +2,7 @@
   <nav class="panel is-primary">
     <p class="panel-tabs">
       <a
+
         v-for="tab in tabs"
         :data-test="tab"
         :key="tab"
@@ -15,8 +16,14 @@
     <div
       v-for="post in allPosts"
       :key="post.id"
+      data-test-post
     >
-      {{ post.title }}
+      <a class="panel-block">
+        <div class="level">
+          {{ post.title }}
+
+        </div>
+      </a>
     </div>
   </nav>
 </template>

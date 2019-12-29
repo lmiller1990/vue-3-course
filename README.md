@@ -813,11 +813,16 @@ Coding: Call the action. Return `posts` with computed. Use `computed`.
       </a>
     </p>  
 
-    <div
+    div
       v-for="post in allPosts"
       :key="post.id"
     >
-      {{ post.title }}
+      <a class="panel-block">
+        <div class="level">
+          {{ post.title }}
+
+        </div>
+      </a>
     </div>
   </nav>
 </template>
@@ -881,3 +886,41 @@ describe('getters - allPosts', () => {
 ```
 
 It works! In the next video, we will fix the failing test, and write one verifying that the Timeline component is correctly rendering the posts.
+
+# 2.8 Mocking a Vuex store using `jest.mock`
+
+There are a few options to testing components using a Vuex store. One option, is to import the store, set everything up, verify everything works correctly. This is what we call an "integration" test - it verifies all the moving parts are working together. I prefer to write integration tests with a framework like Cypress or Selenium, which runs the actual app in a browser. You should have both integration tests and unit tests. I'll be demonstrating how to mock the Vuex store using `jest.mock`, which gives us more fine grained control over the state of the Vuex store, with far less code and overhead.
+
+Coding: Write test, add data-test-post attribute, show inline `require` and mockPost.
+
+```ts
+jest.mock('@/store/posts', () => {
+  return {
+    usePosts: () => ({
+      actions: {
+        fetchAll: () => { }
+      },
+      getters: {
+        allPosts: () => [require('@/resources').post]
+      }
+    })
+  }
+})
+```
+
+Coding: show jest.fn() and jest.mock.resetMock and beforeEach hook.
+
+```ts
+describe('Timeline', () => {
+  beforeEach(() => {
+    mockFetchAll.mockReset()
+  })
+
+  it('renders posts', async () => {
+    const wrapper = mount(Timeline)
+
+    expect(mockFetchAll).toHaveBeenCalled()
+    expect(wrapper.findAll('[data-test-post]')).toHaveLength(1)
+  })
+})
+````
