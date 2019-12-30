@@ -1765,6 +1765,8 @@ There is a bug - once we create our post, if we navigate back to the root page, 
 
 Coding: Update the SET_POSTS mutation and test to not reset the state each time. Discuss the `mocks` mounting option.
 
+That brings us to the end of this section. The next series of lectures will focus on the concept of a user, signin up and logging in.
+
 ```ts
 describe('mutations - SET_POSTS', () => {
   it('bulk inserts new posts to the state, and updates existing ones', () => {
@@ -1833,3 +1835,83 @@ it('calls a create action when a post is submitted and redirects to root', async
   expect(mockCreate).toHaveBeenCalled()
 })
 ```
+
+# 5.0 Users Sign Up, Log in and Validation
+
+This is the section where we finally introduce the concept of a user. We will change which buttons show in the TopNav depending on if the user has signed in, as well as allow users to edit their own posts, and view other users' post. We will also implement a sign in form with some basic validation.
+
+Coding: Show the signup form with validation, and how TopNav changes depending on the logged in state.
+
+In a large, complex app, I might lean towards something like Vuelidate or Vee-Validate. They are large, complete libraries. Since the validation I want is very simple, I'll be writing my own. It's also a great way to see some more of the Composition API, as well as build our first truly modular component that could easily be reused in another application.
+
+# 5.1 Defining the User interface
+
+In this section, we consider how we will store users, and what keys the user interface will have. Let's also make the NewUser route and view.
+
+Coding: create the User interface. Create a mock user. Create  a NewUser.vue component and route.
+
+# 5.2 Creating new NewUser route implementing v-model on a Custom Component
+
+Let's create a Signup component, and a basic component called ValidatorInput that wraps an input with the Bulma styling. We will also see how to implement v-model on a custom component, which is tiny bit more involved that a regular HTML component, since Vue can't know how your component handles inputs.
+
+Coding: Signup.vue and ValidatorInput.vue.
+
+# 5.3 Defining the Rule type and test driving the validator.ts.
+
+Before we get started showing errors and validations in the form, let's think a bit about the API we want to expose - after all, we want this component to be modular and generic enough to be used in future applications.
+
+Coding: Rule type, for MinLength and Format, and write the tests for validation.
+
+# 5.4 Integration the Validation with the ValidatorInput
+
+Now we have the validation working, let's integrate it into the ValidatorInput.
+
+Coding: Integrate validate.ts with ValidatorInput, write tests.
+
+# 5.5 Completing the Signup Component
+
+We have a solid ValidatorInput control - let's finish the Signup component.
+
+Coding: Build out Signup with ValidatorInputs, emit an event when submitted and respond to event in parent. 
+
+# 5.6 Building the Users Store
+
+To sign a user up, we need to persist them to the store.
+
+Coding: Create a basic Users store, with a `signup` action and `SET_CURRENT_USER` mutation. Set the `isCurrentUser` field to be true. Add tests for all of above. Add an `authenticated` field.
+
+# 5.7 Programmticaly show/hide Nav buttons based on User State
+
+Now we have the concept of a user, we will deciding which buttons to hide/show in the TopNav.
+
+# 5.8 Login/Logout
+
+Users can now sign up -- let's allow them to log in and log out.
+
+# 6.0 Finishing the App with Post Show page, Editing an Existing Post, Various Other Improvements
+
+We've reached the final section of the series. In this section, we use all the skills we have learned to build out the Post Show page, the location most users will spend most of their time. We also allow users to edit their existing posts. Lastly, we will finish the feature we started building in the first section, and allow users to filter by the time a post was published.
+
+# 6.1 Adding a Show Posts page
+
+Coding: Create router and use `watch` hook on the $route.params.id to fetch the correct post from the store, or from the API. Write a test for this behavior.
+
+# 6.2 Displaying the Post Content
+
+Coding: Render the post html and make sure it looks good! Add some tests.
+
+# 6.3 Creating an isCurrentUser getter to programatically show the edit button
+
+Coding: Add a `isCurrentUser` getter. Show the Edit button based on this. Tests, of course.
+
+# 6.4 Allowing Posts to be Edited
+
+Coding: Add an EditPost component and route. Use PostWriter to show the post by passing a post prop.
+
+# 6.5 Filtering the Posts based on Publication Date
+
+Coding: Add a filterByDate method. Test it.
+
+# 6.6 Show a Sign Up Form in the Modal 
+
+Coding: Show a Signup Form ih the modal. Include a link to `/users/login`.
