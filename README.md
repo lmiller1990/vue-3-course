@@ -1606,7 +1606,35 @@ describe('PostWriter', () => {
     )
   })
 })
-
 ```
 
 # 4.5 Adding syntax highlighting with higlight.js
+
+Our markdown and preview is looking pretty good. The last step is to add syntax highlighting. `marked` provides a great way to integrate any syntax highlighting library of your choice. I've used both prism and highlight.js, and found highlight.js to be the simplest to integrate, so we will be going with that.
+
+Coding: `yarn install highlight.js @types/highlight.js`. Explain about importing the css globally (since we use it on multiple pages, unlikely to clash). Nothing to test!
+
+```
+// main.ts
+import 'highlight.js/styles/github.css'
+```
+
+```
+import marked, { MarkedOptions } from 'marked'
+import { highlightAuto } from 'highlight.js'
+
+// ...
+const options: MarkedOptions = {
+  highlight: (code: string) => {
+    return highlightAuto(code).value
+  }
+}
+watch(() => markdown.value, (val) => {
+  marked(markdown.value, options, (err, res) => {
+    if (err) {
+      return
+    }
+    content.value = res
+  })
+})
+```

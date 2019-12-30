@@ -33,7 +33,8 @@
 </template>
 
 <script lang="ts">
-import marked from 'marked'
+import marked, { MarkedOptions } from 'marked'
+import { highlightAuto } from 'highlight.js'
 import { createComponent, ref, onMounted, watch } from '@vue/composition-api'
 
 import { Post } from '@/types'
@@ -62,8 +63,13 @@ export default createComponent({
       div.innerText = props.post.markdown
     })
 
+    const options: MarkedOptions = {
+      highlight: (code: string) => {
+        return highlightAuto(code).value
+      }
+    }
     watch(() => markdown.value, (val) => {
-      marked(markdown.value, {}, (err, res) => {
+      marked(markdown.value, options, (err, res) => {
         if (err) {
           return
         }

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import CompositionAPI from '@vue/composition-api'
 import VuePortal from 'portal-vue'
+import 'highlight.js/styles/github.css'
 
 import App from './App.vue'
 import router from './router'
