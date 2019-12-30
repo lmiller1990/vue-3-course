@@ -1,5 +1,8 @@
 <template>
-  <PostWriter :post="newPost" />
+  <PostWriter 
+    :post="newPost" 
+    @submitted="handleSubmit"
+  />
 </template>
 
 <script lang="ts">
@@ -8,6 +11,7 @@ import moment from 'moment'
 
 import { Post } from '@/types'
 import PostWriter from '@/components/PostWriter/PostWriter.vue'
+import { usePosts } from '@/store/posts'
 
 export default createComponent({
   name: 'NewPost',
@@ -16,7 +20,9 @@ export default createComponent({
     PostWriter
   },
 
-  setup() {
+  setup(props, ctx) {
+    const posts = usePosts(ctx.root.$store)
+
     const newPost: Post = {
       id: 0,
       title: '',
@@ -24,12 +30,17 @@ export default createComponent({
       tags: [],
       content: '',
       created: moment(),
-      authorId: 0,
+      authorId: 1,
       likes: 0,
+    }
+
+    const handleSubmit = (post: Post) => {
+      posts.actions.create(post)
     }
 
     return {
       newPost,
+      handleSubmit,
     }
   }
 })

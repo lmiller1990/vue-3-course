@@ -18,6 +18,11 @@ export class PostsState implements State {
 }
 
 export class PostsMutations extends Mutations<PostsState> {
+  ADD_POST(post: Post) {
+    this.state.all[post.id] = post
+    this.state.ids.push(post.id)
+  }
+
   SET_POSTS(posts: Post[]) {
     const ids: number[] = []
     const all: HashMap<Post> = {}
@@ -51,6 +56,15 @@ export class PostsActions extends Actions<PostsState, PostsGetters, PostsMutatio
     // const posts = await axios.get('/api/posts')
     await delay()
     this.commit('SET_POSTS', [ post ])
+  }
+
+  async create(post: Post) {
+    // const posts = await axios.post('/api/posts')
+    await delay()
+    const id = this.state.ids.length 
+      ? Math.max(...this.state.ids) + 1
+      : 1
+    this.commit('ADD_POST', {...post, id })
   }
 }
 

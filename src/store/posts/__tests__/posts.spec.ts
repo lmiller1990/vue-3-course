@@ -26,6 +26,20 @@ describe('mutations - SET_POSTS', () => {
   })
 })
 
+describe('mutations - ADD_POST', () => {
+  it('inserts a new post to the state', () => {
+    const state = createState()
+    const mutations = inject(PostsMutations, {
+      state
+    })
+
+    mutations.ADD_POST(post)
+
+    expect(state.ids).toEqual([ 1 ])
+    expect(state.all[1]).toEqual(post)
+  })
+})
+
 describe('getters - allPosts', () => {
   it('returns an array of posts', async () => {
     const state: State = {
@@ -53,5 +67,26 @@ describe('actions - fetchAll', () => {
     await actions.fetchAll()
 
     expect(commit).toHaveBeenCalledWith('SET_POSTS', [ post ])
+  })
+})
+
+describe('actions - create', () => {
+  it('creates a new post and calls a ADD_POST mutation', async () => {
+    const commit = jest.fn()
+    const state = createState()
+    const actions = inject(PostsActions, {
+      commit,
+      state: {
+        ...state,
+        ids: [1],
+        all: {
+          1: post
+        }
+      }
+    })
+
+    await actions.create(post)
+
+    expect(commit).toHaveBeenCalledWith('ADD_POST', { ...post, id: 2 })
   })
 })

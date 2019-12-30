@@ -25,7 +25,7 @@
     <div class="columns">
       <div class="column">
         <div class="buttons is-pulled-right">
-          <button class="button is-primary">Submit</button>
+          <button class="button is-primary" @click="handleSubmit">Submit</button>
         </div>
       </div>
     </div>
@@ -84,9 +84,21 @@ export default createComponent({
       markdown.value = editableDiv.innerText
     }
 
+    const handleSubmit = () => {
+      const post: Post = {
+        ...props.post,
+        title: title.value,
+        content: content.value,
+        markdown: markdown.value,
+      }
+
+      ctx.emit('submitted', post)
+    }
+
     return {
       title,
       markdown,
+      handleSubmit,
       content,
       handleEdit,
     }

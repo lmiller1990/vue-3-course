@@ -1301,7 +1301,7 @@ export default createComponent({
       tags: [],
       markdown: '',
       created: moment(),
-      authorId: 0,
+      authorId: 1,
       likes: 0,
     }
 
@@ -1637,4 +1637,125 @@ watch(() => markdown.value, (val) => {
     content.value = res
   })
 })
+```
+
+# 4.6 Dispatching an Action to Insert the New Post into the Posts state
+
+Now we have all the functionality in place to publish a basic post, let's add some code to the posts store to let us insert the post.
+
+Coding: Add the relevant action and mutation + test. Note the edge case of using Math.max.
+
+```ts
+ADD_POST(post: Post) {
+  this.state.all[post.id] = post
+  this.state.ids.push(post.id)
+}
+
+async create(post: Post) {
+  // const posts = await axios.post('/api/posts')
+  await delay()
+  const id = Math.max(...this.state.ids) + 1
+  this.commit('ADD_POST', {...post, id })
+}
+
+describe('mutations - ADD_POST', () => {
+  it('inserts a new post to the state', () => {
+    const state = createState()
+    const mutations = inject(PostsMutations, {
+      state
+    })
+
+    mutations.ADD_POST(post)
+
+    expect(state.ids).toEqual([ 1 ])
+    expect(state.all[1]).toEqual(post)
+  })
+})
+
+describe('actions - create', () => {
+  it('creates a new post and calls a ADD_POST mutation', async () => {
+    const commit = jest.fn()
+    const state = createState()
+    const actions = inject(PostsActions, {
+      commit,
+      state: {
+        ...state,
+        ids: [1],
+        all: {
+          1: post
+        }
+      }
+    })
+
+    await actions.create(post)
+
+    expect(commit).toHaveBeenCalledWith('ADD_POST', { ...post, id: 2 })
+  })
+})
+```
+
+# 4.7 Emitting a submitted event and dispatching a create action
+
+Now we have the relevant Vuex action and mutation in place, we can update the PostWriter to call the action! We could call it directly in PostWriter, but it makes more sense to emit an event and handle this in the parent, NewPost. This is because when we use the PostWriter for `editing` a post, we will be using another action (instead of ADD_POST, something like UPDATE_POST).
+
+Coding: emit a submitted event, mock usePosts and assert against mockCreate. Point out you can also test which arguments the function was called with. Explain workaround for Math.Infinity when no ids are present in the store.
+
+```ts
+// NewPost
+<template>
+  <PostWriter 
+    :post="newPost" 
+    @submitted="handleSubmit"
+  />
+</template>
+
+const handleSubmit = (post: Post) => {
+  posts.actions.create(post)
+}
+
+return {
+  newPost,
+  handleSubmit,
+}
+```
+
+```ts
+// NewPost.spec.ts
+it('calls a create action when a post is submitted', async () => {
+  const wrapper = mount(NewPost, {
+    localVue: createTestVue(),
+  })
+
+  wrapper.find(PostWriter).find('button').trigger('click')
+  await wrapper.vm.$nextTick()
+  
+  expect(mockCreate).toHaveBeenCalled()
+})
+```
+
+```ts
+PostWriter.vue
+
+const handleSubmit = () => {
+const post: Post = {
+  ...props.post,
+  title: title.value,
+  content: content.value,
+  markdown: markdown.value,
+}
+
+ctx.emit('submitted', post)
+```
+
+
+```ts
+// store/posts.index.ts - actions
+async create(post: Post) {
+  // const posts = await axios.post('/api/posts')
+  await delay()
+  const id = this.state.ids.length 
+    ? Math.max(...this.state.ids) + 1
+    : 100
+  this.commit('ADD_POST', {...post, id })
+}
 ```
