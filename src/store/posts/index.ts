@@ -24,16 +24,13 @@ export class PostsMutations extends Mutations<PostsState> {
   }
 
   SET_POSTS(posts: Post[]) {
-    const ids: number[] = []
-    const all: HashMap<Post> = {}
-
     for (const post of posts) {
-      all[post.id] = post
-      ids.push(post.id)
-    }
+      if (!this.state.ids.includes(post.id)) {
+        this.state.ids.push(post.id)
+      }
 
-    this.state.all = all
-    this.state.ids = ids
+      this.state.all[post.id] = post
+    }
   }
 }
 
@@ -63,7 +60,7 @@ export class PostsActions extends Actions<PostsState, PostsGetters, PostsMutatio
     await delay()
     const id = this.state.ids.length 
       ? Math.max(...this.state.ids) + 1
-      : 1
+      : 100
     this.commit('ADD_POST', {...post, id })
   }
 }

@@ -25,9 +25,12 @@ describe('NewPost', () => {
     expect(wrapper.find(PostWriter).exists()).toBe(true)
   })
   
-  it('calls a create action when a post is submitted', async () => {
+  it('calls a create action when a post is submitted and redirects to root', async () => {
     const wrapper = mount(NewPost, {
       localVue: createTestVue(),
+      mocks: {
+        $router: { push: () => {} }
+      }
     })
 
     wrapper.find(PostWriter).find('button').trigger('click')

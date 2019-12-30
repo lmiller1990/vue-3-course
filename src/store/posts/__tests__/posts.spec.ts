@@ -2,6 +2,7 @@ import { inject } from 'vuex-smart-module'
 
 import { State, PostsMutations, PostsActions, PostsGetters } from '../index'
 import { post } from '@/resources'
+import { Post } from '@/types'
 
 const createState = (): State => {
   return {
@@ -13,16 +14,30 @@ const createState = (): State => {
 }
 
 describe('mutations - SET_POSTS', () => {
-  it('bulk inserts posts to the state', () => {
-    const state = createState()
+  it('bulk inserts new posts to the state, and updates existing ones', () => {
+    const newPost: Post = {
+      ...post,
+      id: 2,
+      title: 'New Post'
+    }
+
+    const state: State = {
+      ...createState(),
+      all: {
+        1: post
+      },
+      ids: [1]
+    }
+
     const mutations = inject(PostsMutations, {
       state
     })
 
-    mutations.SET_POSTS([ post ])
+    mutations.SET_POSTS([ newPost ])
 
-    expect(state.ids).toEqual([ 1 ])
+    expect(state.ids).toEqual([ 1, 2 ])
     expect(state.all[1]).toEqual(post)
+    expect(state.all[2]).toEqual(newPost)
   })
 })
 

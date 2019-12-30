@@ -5,10 +5,13 @@ import { createTestVue } from '@/testHelper'
 import TimelineItem from '../TimelineItem.vue'
 import { post as mockPost } from '@/resources'
 
+const localVue = createTestVue()
+localVue.use(VueRouter)
+
 describe('TimelineItem', () => {
   it('renders information about the post', () => {
     const wrapper = mount(TimelineItem, {
-      localVue: createTestVue(),
+      localVue,
       router: new VueRouter({ mode: 'history' }),
       propsData: {
         post: mockPost
@@ -23,7 +26,7 @@ describe('TimelineItem', () => {
   it('emits a like event when like is clicked', () => {
     const wrapper = mount(TimelineItem, {
       router: new VueRouter({ mode: 'history' }),
-      localVue: createTestVue(),
+      localVue,
       propsData: {
         post: mockPost
       },

@@ -34,8 +34,9 @@ export default createComponent({
       likes: 0,
     }
 
-    const handleSubmit = (post: Post) => {
-      posts.actions.create(post)
+    const handleSubmit = async (post: Post) => {
+      await posts.actions.create(post)
+      ctx.root.$router.push('/')
     }
 
     return {

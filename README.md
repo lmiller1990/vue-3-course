@@ -1048,7 +1048,6 @@ import VueRouter from 'vue-router'
 import { mount } from '@vue/test-utils'
 import Composition from '@vue/composition-api'
 Vue.use(Composition)
-Vue.use(VueRouter)
 
 import TimelineItem from '../TimelineItem.vue'
 import { post as mockPost } from '@/resources'
@@ -1076,14 +1075,12 @@ Now is a great time to revisit why doing `Vue.use` in a unit test is not ideal, 
 Coding: testHelper.ts, update Timeline and TimelineItem. Also, show how to use `stubs` in Timeline instead of using a real router.
 
 ```ts
-import VueRouter from 'vue-router'
 import { createLocalVue } from '@vue/test-utils'
 import Composition from '@vue/composition-api'
 
 const createTestVue = () => {
   const localVue = createLocalVue()
   localVue.use(Composition)
-  localVue.use(VueRouter)
 
   return localVue
 }
@@ -1095,9 +1092,11 @@ export {
 
 ```ts
   // with router
+  const localVue = createTestVue()
+  localVue.use(VueRouter)
   it('renders posts', async () => {
     const wrapper = mount(Timeline, {
-      localVue: createTestVue(),
+      localVue,
       router: new VueRouter({ mode: 'history' }),
     })
     expect(wrapper.find('[data-test="Today"]').classes()).toContain('is-active')
@@ -1643,7 +1642,7 @@ watch(() => markdown.value, (val) => {
 
 Now we have all the functionality in place to publish a basic post, let's add some code to the posts store to let us insert the post.
 
-Coding: Add the relevant action and mutation + test. Note the edge case of using Math.max.
+Coding: Add the relevant action and mutation + test. Note the edge case of using Math.max where it returns -Infinity.
 
 ```ts
 ADD_POST(post: Post) {
@@ -1758,4 +1757,79 @@ async create(post: Post) {
     : 100
   this.commit('ADD_POST', {...post, id })
 }
+```
+
+# 4.8 Using `mocks` to fake a router and fixing the SET_POSTS mutation
+
+There is a bug - once we create our post, if we navigate back to the root page, it doesn't show up! That's because in we are overwriting it in the `SET_POSTS` mutation. Let's update `SET_POSTS` to update any existing posts. This time, let's write the test first.
+
+Coding: Update the SET_POSTS mutation and test to not reset the state each time. Discuss the `mocks` mounting option.
+
+```ts
+describe('mutations - SET_POSTS', () => {
+  it('bulk inserts new posts to the state, and updates existing ones', () => {
+    const newPost: Post = {
+      ...post,
+      id: 2,
+      title: 'New Post'
+    }
+
+    const state: State = {
+      ...createState(),
+      all: {
+        1: post
+      },
+      ids: [1]
+    }
+
+    const mutations = inject(PostsMutations, {
+      state
+    })
+
+    mutations.SET_POSTS([ newPost ])
+
+    expect(state.ids).toEqual([ 1, 2 ])
+    expect(state.all[1]).toEqual(post)
+    expect(state.all[2]).toEqual(newPost)
+  })
+})
+```
+
+```ts
+SET_POSTS(posts: Post[]) {
+  for (const post of posts) {
+    if (!this.state.ids.includes(post.id)) {
+      this.state.ids.push(post.id)
+    }
+
+    this.state.all[post.id] = post
+  }
+}
+```
+
+Update NewPost to redirect to the root:
+
+```ts
+const handleSubmit = async (post: Post) => {
+  await posts.actions.create(post)
+  ctx.root.$router.push('/')
+}
+```
+
+And update NewPost.spec.ts:
+
+```ts
+it('calls a create action when a post is submitted and redirects to root', async () => {
+  const wrapper = mount(NewPost, {
+    localVue: createTestVue(),
+    mocks: {
+      $router: { push: () => {} }
+    }
+  })
+
+  wrapper.find(PostWriter).find('button').trigger('click')
+  await wrapper.vm.$nextTick()
+  
+  expect(mockCreate).toHaveBeenCalled()
+})
 ```
