@@ -7,17 +7,37 @@
     <link rel="stylesheet" href="./simple-grid.css">
 
     <style>
-/* lightgreen: #41b883 */
-/* darkgreen: #34495e */
-body {
-  background: lightgrey;
-}
-    </style>
+      body {
+        background: #4ddd63a6; <!-- lightgreen -->
+      }
 
+      h1 {
+        margin: 0;
+      }
+
+      #main {
+        padding: 25px 0 0 0;
+      }
+
+      .yt-container {
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-bottom: 56.25%;
+      }
+
+      .video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
 
   </head>
   <body>
-    <div class="container">
+    <div id="main" class="container">
       <div class="row">
 
         <div class="col-5">
@@ -31,6 +51,18 @@ body {
             <li>TypeScript</li>
             <li>Unit Testing from the get-go</li>
           </ul>
+        </div>
+
+        <div class="col-7">
+          <div class="yt-container">
+            <iframe
+              class="video"
+              src="https://www.youtube.com/embed/videoseries?list=PLx0sYbCqOb8TBPRdmBHs5Iftvv9TPboYG" 
+              frameborder="0" 
+              allow="autoplay; encrypted-media" 
+              allowfullscreen
+            ></iframe>
+          </div>
         </div>
       </div>
 
