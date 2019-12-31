@@ -1607,7 +1607,7 @@ describe('PostWriter', () => {
 })
 ```
 
-# 4.5 Adding syntax highlighting with higlight.js
+# 4.6 Adding syntax highlighting with higlight.js
 
 Our markdown and preview is looking pretty good. The last step is to add syntax highlighting. `marked` provides a great way to integrate any syntax highlighting library of your choice. I've used both prism and highlight.js, and found highlight.js to be the simplest to integrate, so we will be going with that.
 
@@ -1638,7 +1638,7 @@ watch(() => markdown.value, (val) => {
 })
 ```
 
-# 4.6 Dispatching an Action to Insert the New Post into the Posts state
+# 4.7 Dispatching an Action to Insert the New Post into the Posts state
 
 Now we have all the functionality in place to publish a basic post, let's add some code to the posts store to let us insert the post.
 
@@ -1693,7 +1693,7 @@ describe('actions - create', () => {
 })
 ```
 
-# 4.7 Emitting a submitted event and dispatching a create action
+# 4.8 Emitting a submitted event and dispatching a create action
 
 Now we have the relevant Vuex action and mutation in place, we can update the PostWriter to call the action! We could call it directly in PostWriter, but it makes more sense to emit an event and handle this in the parent, NewPost. This is because when we use the PostWriter for `editing` a post, we will be using another action (instead of ADD_POST, something like UPDATE_POST).
 
@@ -1759,7 +1759,7 @@ async create(post: Post) {
 }
 ```
 
-# 4.8 Using `mocks` to fake a router and fixing the SET_POSTS mutation
+# 4.9 Using `mocks` to fake a router and fixing the SET_POSTS mutation
 
 There is a bug - once we create our post, if we navigate back to the root page, it doesn't show up! That's because in we are overwriting it in the `SET_POSTS` mutation. Let's update `SET_POSTS` to update any existing posts. This time, let's write the test first.
 
@@ -1915,3 +1915,5 @@ Coding: Add a filterByDate method. Test it.
 # 6.6 Show a Sign Up Form in the Modal 
 
 Coding: Show a Signup Form ih the modal. Include a link to `/users/login`.
+
+# 6.7x   

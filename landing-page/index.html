@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="./index.css">
+    <link rel="stylesheet" href="./simple-grid.css">
+
+    <style>
+/* lightgreen: #41b883 */
+/* darkgreen: #34495e */
+body {
+  background: lightgrey;
+}
+    </style>
+
+
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+
+        <div class="col-5">
+          <h1>
+            Vue.js 3 and the Composition API is here!
+          </h1>
+
+          <h3>Learn to build Vue.js 3 apps, complete with:</h3>
+          <ul>
+            <li>Composition API</li>
+            <li>TypeScript</li>
+            <li>Unit Testing from the get-go</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <h4>Why is this course different?</h4>
+          <p>
+          There are a lot of Vue courses out there. 
+          However, few of them cover:
+          </p>
+          <ul>
+            <li>
+              Composition API. While developers are free to continue using the existing Vue APIs, Vue.js 3 comes loaded with the Composition API, an alternative way to build Vue components. This course focuses on the Composition API and it's benefits.
+            </li>
+            <li>
+              TypeScript. Vue 3 is now written in TypeScript, 
+              reflecting the industry trend which is to build web applications in TypeScript.
+            </li>
+            <li>
+              Unit Tests for everything. All professional developers are expected to write tests, yet the majority of courses don't touch on testing at all. All the code we write in this course is paired with tests, to make sure everything behaves as expected.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-1"><!-- Placeholder --></div>
+        <div id="content" class="col-10">
+
+          <section>
+            <div>Section 1</div>
+            <ol>
+              <li>1.1 Getting Setup</li>
+              <li>1.2 Creating the TopNav component</li>
+              <li>1.3 Using the Composition API</li>
+              <li>1.4 Adding Bulma</li>
+              <li>1.5 Rendering the Timeline component 
+                and Tabs with Vue Router
+              </li>
+              <li>
+                1.6 Creating reactive tabs with `ref`
+              </li>
+              <li>
+                1.7 Intro to Vue Test Utils - 
+                Testing the Timeline component
+              </li>
+              <li>
+                1.8 Improving the test with data attributes and await nextTick</li>
+            </ol>
+          </section>
+
+          <section>
+            <div>Section 2</div>
+            <ol>
+              <li>
+                2.0 Typesafe Vuex with `vuex-smart-module`
+              </li>
+              <li>
+                2.1 Creating the Posts Store
+              </li>
+              <li>
+                2.2 Testing the Posts Mutation
+              </li>
+              <li>
+                2.3 Writing a Type Safe Action
+              </li>
+              <li>
+                2.4 Consuming a Vuex store with the Composition API
+              </li>
+              <li>
+                2.5 Calling an Action and Access the Posts with `computed`
+              </li>
+              <li>
+                2.6 `ref` vs `computed`
+              </li>
+              <li>
+                2.7 Accessing Vuex State using Getters
+              </li>
+              <li>
+                2.8 Mocking a Vuex store using `jest.mock`
+              </li>
+            </ol>
+          </section>
+
+          <section>
+            <div>Section 3</div>
+            <ol>
+              <li>
+                3.0 Improving the Timeline with a TimelineItem component
+              </li>
+              <li>
+                3.1 Extracting a TimelineItem component and using Props
+              </li>
+              <li>
+                3.2 Improving the TimelineItem with RouterLink
+              </li>
+              <li>
+                3.3 Adding a createTestVue method to avoid polluting the global Vue
+              </li>
+              <li>
+                3.4 Using `emitted` to test events
+              </li>
+              <li>
+                3.5 Using Portals to render a modal, testing with exists
+              </li>
+              <li>
+                3.6 Improve the Modal UI
+              </li>
+              <li>
+                3.7 Section Summary
+              </li>
+            </ol>
+          </section>
+
+          <section>
+            <div>Section 4</div>
+            <ol>
+              <li>4.0 Section Preview</li>
+              <li>4.1 Adding a `/posts/edit` route</li>
+              <li>4.2 Using v-model and Creating the Layout for the PostWriter</li>
+              <li>4.3 Implementing Two way binding manually on contenteditable</li>
+              <li>4.4 Introducing `marked` to convert the markdown to HTML</li>
+              <li>4.5 Adding a test for the markdown functionality</li>
+              <li>4.6 Adding syntax highlighting with highlight.js</li>
+              <li>4.7 Dispatching an Action to Insert the New Post into the Posts state</li>
+              <li>4.8 Emitting a submitted event and dispatching a create action</li>
+              <li>4.9 Using `mocks` to fake a router and fixing the SET_POSTS mutation</li>
+            </ol>
+          </section>
+          <section>
+            <div>Section 5</div>
+            <ol>
+              <li>5.0 Users Sign Up, Log in and Validation</li>
+              <li>5.1 Defining the User interface</li>
+              <li>5.2 Creating new NewUser route implementing v-model on a Custom Component</li>
+              <li>5.3 Defining the Rule type and test driving the validator.ts</li>
+              <li>5.4 Integration the Validation with the ValidatorInput</li>
+              <li>5.5 Completing the Signup Component</li>
+              <li>5.6 Building the Users Store</li>
+              <li>5.7 Programmticaly show/hide Nav buttons based on User State</li>
+              <li>5.8 Login/Logout</li>
+            </ol>
+          </section>
+
+          <section>
+            <div>Section 6</div>
+            <ol>
+              <li>6.0 Finishing the App with Post Show page, Editing an Existing Post, Various Other Improvements</li>
+              <li>6.1 Adding a Show Posts page</li>
+              <li>6.2 Displaying the Post Content</li>
+              <li>6.3 Creating an isCurrentUser getter to programatically show the edit button</li>
+              <li>6.4 Allowing Posts to be Edited</li>
+              <li>6.5 Filtering the Posts based on Publication Date</li>
+              <li>6.6 Show a Sign Up Form in the Modal</li>
+              <li>6.7 Conclusion, Improvements</li>
+            </ol>
+          </section>
+
+          <section>
+            <div>Conclusion</div>
+            <ol>
+              <li>Review of content, how to continue improving as a Vue.js developer and front-end engineer</li>
+            </ol>
+          </section>
+        </div>
+        <div class="col-1"><!-- Placeholder --></div>
+      </div>
+
+    </div>
+  </body>
+</html>
