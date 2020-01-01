@@ -1,3 +1,21 @@
+# Welcome to Vue.js 3: Composition API, TypeScript and Unit Testing!
+
+Title: Vue.js 3.0: The Composition API, TypeScript, Vuex, VueRouter and Unit Testing
+
+In this guide, we will build a blogging applications for developers. It supports writing posts using markdown.
+```
+function demo() {
+  console.log('It supports syntax highlighting, too!')
+}
+```
+In this course, I'll teach you:
+- Vue.js 3 and the Composition API
+- TypeScript
+- Unit Testing with Jest and `vue-test-utils` (my favorite topic)
+- Typesafe Vuex with `vuex-smart-module`
+- Using `vue-router`
+- ...and much more!
+
 # 0. Introduce the Course, App
 
 In this course, we will be building the front-end for a blogging platform, similar to Medium or Dev.to. I will give a demo of the application in a moment. Their are three main focuses of this course:
