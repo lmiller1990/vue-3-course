@@ -7,7 +7,12 @@
     <link rel="stylesheet" href="./simple-grid.css">
 
     <style>
-    #disclaimer {
+    h4 {
+      padding: 0;
+      margin: 0;
+    }
+
+    #disclaimer-1, #disclaimer-2 {
       font-size: 0.7rem;
       text-align: center;
     }
@@ -218,7 +223,7 @@
       <div id="form">
         <div>
           <form onsubmit="handleSubmit(event, 1)">
-            <input id="email-1" style="width: 300px;" type="email" placeholder="Email"/>
+            <input id="email-1" type="email" placeholder="Email"/>
             <button type="submit">Submit</button>
           </form>
           <div id="disclaimer-1">I will <u>only</u> email regarding the status of this course; no spam or mail-outs.</div>
@@ -228,6 +233,10 @@
       <div id="alert-1" class="alert-hide" style="text-align: center">
         <div>Thanks for registering. When the course is complete, I'll let you know!</div>
       </div>
+
+      <br />
+      <hr />
+      <br />
 
       <div class="row">
         <div class="col">
@@ -253,7 +262,34 @@
         </div>
       </div>
 
+      <hr />
+
       <div class="row">
+        <div class="col-1"> </div>
+
+        <div class="col-3">
+          <img style="width: 100%;"  src="https://avatars3.githubusercontent.com/u/19196536?s=460&v=4">
+        </div>
+        <div class="col-7">
+          <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <h4 style="width: 100%; text-align: left;">Teacher Profile</h4>
+            <div>
+              Lachlan has been developing applications using Vue.js since 2015. He is one of the maintainers of 
+              <a href="https://github.com/vuejs/vue-test-utils">Vue Test Utils</a>, the official testing library
+              for Vue.js, and the author of the 
+              <a href="https://lmiller1990.github.io/vue-testing-handbook/">Vue Testing Handbook</a>.
+              Reach him via <a href="https://github.com/lmiller1990">GitHub</a>.
+            </div>
+          </div>
+        </div>
+
+        <div class="col-1"> </div>
+      </div>
+
+      <hr />
+
+      <div class="row">
+        <h4 style="width: 100%; text-align: center;">Course Content</h4>
         <div class="col-1"><!-- Placeholder --></div>
         <div id="content" class="col-10">
 
@@ -403,7 +439,7 @@
       <div id="form">
         <div>
           <form onsubmit="handleSubmit(event, 2)">
-            <input id="email-2" style="width: 300px;" type="email" placeholder="Email"/>
+            <input id="email-2"  type="email" placeholder="Email"/>
             <button type="submit">Submit</button>
           </form>
           <div id="disclaimer-2">I will <u>only</u> email regarding the status of this course; no spam or mail-outs.</div>
