@@ -7,7 +7,25 @@
     <link rel="stylesheet" href="./simple-grid.css">
 
     <style>
+    #disclaimer {
+      font-size: 0.7rem;
+      text-align: center;
+    }
+
+    .alert-hide {
+      display: none;
+    }
+
+    .alert-show {
+      display: inherit;
+    }
+
     #form {
+      display: flex;
+      justify-content: center;
+    }
+
+    form {
       display: flex;
       justify-content: center;
     }
@@ -118,6 +136,9 @@
 
 
     <style>
+      li {
+        padding: 2px 0;
+      }
       section > div {
         text-decoration: underline;
       }
@@ -196,11 +217,16 @@
 
       <div id="form">
         <div>
-          <form style="display: flex" onsubmit="handleSubmit(event)">
-            <input style="width: 300px;" type="email" placeholder="Email"/>
+          <form onsubmit="handleSubmit(event, 1)">
+            <input id="email-1" style="width: 300px;" type="email" placeholder="Email"/>
             <button type="submit">Submit</button>
           </form>
+          <div id="disclaimer-1">I will <u>only</u> email regarding the status of this course; no spam or mail-outs.</div>
         </div>
+      </div>
+
+      <div id="alert-1" class="alert-hide" style="text-align: center">
+        <div>Thanks for registering. When the course is complete, I'll let you know!</div>
       </div>
 
       <div class="row">
@@ -212,14 +238,16 @@
           </p>
           <ul>
             <li>
-              <u>Composition API</u>: While developers are free to continue using the existing Vue APIs, Vue 3 adds the Composition API, an alternative way to build Vue components. This course focuses on the Composition API and it's benefits.
+              <u>Composition API</u>: Vue 3 adds the Composition API, an alternative way to build Vue components. This course focuses on the Composition API and it's benefits.
             </li>
             <li>
-              <u>TypeScript</u>: Vue 3 is now written in TypeScript, 
-              reflecting the shift in the industry to TypeScript. All code in this course is written in TypeScript. 
+              <u>TypeScript</u>: Vue 3 is now written in TypeScript, and so is all of the code in the course.
             </li>
             <li>
-              <u>Unit Tests</u>: All professional developers are expected to write tests, yet the majority of courses don't touch on testing at all. All the code we write in this course is paired with tests, to make sure everything behaves as expected.
+              <u>Unit Tests</u>: All professional developers are expected to write tests. All the code we write in this course is paired with tests, to make sure everything behaves as expected.
+            </li>
+            <li>
+              <u>Pacing</u>: We progress quickly, solidifying new concepts by using them multiple times in different contexts, and by writing tests.
             </li>
           </ul>
         </div>
@@ -368,12 +396,59 @@
         <div class="col-1"><!-- Placeholder --></div>
       </div>
 
+      <h3 style="text-align: center;">
+        Register for early access!
+      </h3>
+
+      <div id="form">
+        <div>
+          <form onsubmit="handleSubmit(event, 2)">
+            <input id="email-2" style="width: 300px;" type="email" placeholder="Email"/>
+            <button type="submit">Submit</button>
+          </form>
+          <div id="disclaimer-2">I will <u>only</u> email regarding the status of this course; no spam or mail-outs.</div>
+        </div>
+      </div>
+
+      <div id="alert-2" class="alert-hide" style="text-align: center">
+        <div>Thanks for registering. When the course is complete, I'll let you know!</div>
+      </div>
+
+      <br />
+      <br />
     </div>
 
     <script>
-      function handleSubmit(e) {
+      async function postData(url = '', data = {}) {
+        console.log(JSON.stringify(data))
+        const response = await fetch(url, {
+          method: 'POST', 
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+      }
+
+      function handleSubmit(e, el) {
         e.preventDefault()
-        console.log(e)
+        console.log(el)
+        const email = document.getElementById('email-' + el).value
+        const msg = document.getElementById('alert-' + el)
+        const disclaimer = document.getElementById('disclaimer-' + el)
+        msg.classList.remove('alert-hide')
+        msg.classList.add('alert-show')
+        disclaimer.classList.add('alert-hide')
+
+        postData('https://email-gather.herokuapp.com/emails', {
+          email: {
+            email: email,
+            referrer: 'vue-composition-api-course'
+          }
+        })
+          .then((data) => {
+            console.log('Ok!')
+          });
       }
     </script>
   </body>
