@@ -20,5 +20,6 @@ yarn-error.log*
 *.sln
 *.sw?
 
-landing-page/Intro.mp4
+docs/Intro.mp4
+docs/videos/
 videos/
