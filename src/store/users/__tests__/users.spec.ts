@@ -2,6 +2,7 @@ import { inject } from 'vuex-smart-module'
 
 import { State, UsersMutations, UsersActions, UsersGetters } from '../index'
 import { User, NewUser } from '@/types'
+import { userA } from '@/resources'
 
 const createState = (): State => {
   return {
@@ -165,5 +166,47 @@ describe('Actions - signup', () => {
 
     expect(mockCommit.mock.calls[0]).toEqual(['ADD_USER', {...user, isCurrentUser: false}])
     expect(mockCommit.mock.calls[1]).toEqual(['LOGIN', user])
+  })
+})
+
+describe('Getters - getById', () => {
+  it('returns a user by their id', () => {
+    const state: State = {
+      ...createState(),
+      ids: [userA.id],
+      all: {
+        [userA.id]: userA
+      }
+    }
+    const getters = inject(UsersGetters, {
+      state
+    })
+
+    const currentUser = getters.getById(userA.id)
+
+    expect(currentUser).toEqual(userA)
+  })
+})
+
+describe('Getters - currentUser', () => {
+  it('returns the current user', () => {
+    const state: State = {
+      ...createState(),
+      authenticated: true,
+      ids: [userA.id],
+      all: {
+        [userA.id]: {
+          ...userA,
+          isCurrentUser: true,
+        },
+      }
+    }
+    const getters = inject(UsersGetters, {
+      state
+    })
+
+    const currentUser = getters.currentUser()
+
+    expect(currentUser).toEqual(userA)
   })
 })

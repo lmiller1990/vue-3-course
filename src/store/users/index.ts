@@ -55,7 +55,19 @@ export class UsersMutations extends Mutations<UsersState> {
 }
 
 export class UsersGetters extends Getters<UsersState> {
+  getById(id: number) {
+    return this.state.all[id]
+  }
+
+  currentUser() {
+    if (!this.state.authenticated) {
+      return
+    }
+    const id = this.state.ids.find(x => this.state.all[x].isCurrentUser)!
+    return this.state.all[id]
+  }
 }
+
 
 export class UsersActions extends Actions<UsersState, UsersGetters, UsersMutations, UsersActions> {
   async login(user: NewUser) {
