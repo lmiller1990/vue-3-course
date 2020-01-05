@@ -1906,41 +1906,250 @@ export default createComponent({
 </script>
 ```
 
-# 5.2 Creating new NewUser route implementing v-model on a Custom Component
+# 5.2 Creating new NewUser route and a ValidatorInput Custom Component
 
-Let's create a Signup component, and a basic component called ValidatorInput that wraps an input with the Bulma styling. We will also see how to implement v-model on a custom component, which is tiny bit more involved that a regular HTML component, since Vue can't know how your component handles inputs.
+Let's create a Signup component, and a basic component called ValidatorInput that wraps an input with the Bulma styling. We will also start implementing v-model on a custom component, which is tiny bit more involved that a regular HTML component, since Vue can't know how your component handles inputs.
 
-Coding: Signup.vue and ValidatorInput.vue.
+Coding: Signup.vue and ValidatorInput.vue, update NewUser.vue. Show v-model not working (yet).
 
-# 5.3 Defining the Rule type and test driving the validator.ts.
+```html NewUser.vue
+<template>
+  <Signup />
+</template>
+
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
+
+import Signup from '@/components/Signup/Signup.vue'
+
+export default createComponent({
+  name: 'NewUser',
+
+  components: {
+    Signup
+  }
+})
+</script>
+```
+
+```html Signup.vue
+<template>
+  <section class="section">
+    <form @submit.prevent="handleSubmit">
+      <ValidatorInput 
+        name="username"
+        type="text"
+        label="Username"
+        v-model="username"
+      />
+      {{ username }}
+
+      <ValidatorInput 
+        name="email"
+        type="email"
+        label="Email"
+      />
+
+      <ValidatorInput 
+        name="password"
+        type="password"
+        label="Password"
+      />
+    </form>
+  </section>
+</template>
+
+<script lang="ts">
+import { createComponent, ref } from '@vue/composition-api'
+
+import ValidatorInput from '../ValidatorInput/ValidatorInput.vue'
+
+export default createComponent({
+  components: {
+    ValidatorInput,
+  },
+
+  setup() {
+    const username = ref('Lachlan')
+    const handleSubmit = () => {
+    }
+
+    return {
+      handleSubmit,
+      username
+    }
+  }
+})
+</script>
+```
+
+```html ValidatorInput
+<template>
+  <div class="field">
+    <label class="label">
+      {{ label }}
+    </label>
+    <div class="control">
+      <input 
+        :type="type" 
+        :name="name"
+        class="input"
+      />
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
+
+export default createComponent({
+  props: {
+    name: {
+      type: String,
+      required: true,
+    },
+
+    type: {
+      type: String,
+      required: true,
+    },
+
+    label: {
+      type: String,
+      required: true,
+    }
+  },
+
+  setup() {
+  }
+})
+</script>
+```
+
+```ts ValidatorInput.spec.ts
+import { mount } from '@vue/test-utils'
+
+import { createTestVue } from '@/testHelper'
+import ValidatorInput from '../ValidatorInput.vue'
+
+describe('ValidatorInput', () => {
+  it('renders', async () => {
+    const wrapper = mount(ValidatorInput, {
+      localVue: createTestVue(),
+      propsData: {
+        label: 'Username',
+        type: 'text',
+        name: 'username'
+      }
+    })
+  })
+})
+```
+
+
+# 5.3 Implementing a custom v-model using @input and :value
+
+Let's finish the custom v-model.
+
+Coding: Explain v-model is just @input and :value. Write a test. Show event.target.value in the browser.
+
+```html
+<template>
+  <div class="field">
+    <label class="label">
+      {{ label }}
+    </label>
+    <div class="control">
+      <input 
+        :type="type" 
+        :name="name"
+        @input="handleInput"
+        :value="value"
+        class="input"
+      />
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
+
+export default createComponent({
+    // ...
+    value: {
+      type: String,
+      required: true,
+    },
+  },
+
+  setup(props, ctx) {
+    const handleInput = (e: any) => {
+      ctx.emit('input', e.target.value)
+    }
+
+    return {
+      handleInput,
+    }
+  }
+})
+</script>
+```
+
+```ts ValidatorInput.spec.ts
+import { mount } from '@vue/test-utils'
+
+import { createTestVue } from '@/testHelper'
+import ValidatorInput from '../ValidatorInput.vue'
+
+describe('ValidatorInput', () => {
+  it('emits an event with current value', async () => {
+    const wrapper = mount(ValidatorInput, {
+      localVue: createTestVue(),
+      propsData: {
+        label: 'Username',
+        type: 'text',
+        name: 'username',
+        value: '',
+      }
+    })
+
+    wrapper.find('input').setValue('some-value')
+
+    expect(wrapper.emitted().input[0][0]).toBe('some-value')
+  })
+})
+```
+
+
+# 5.4 Defining the Rule type and test driving the validator.ts.
 
 Before we get started showing errors and validations in the form, let's think a bit about the API we want to expose - after all, we want this component to be modular and generic enough to be used in future applications.
 
 Coding: Rule type, for MinLength and Format, and write the tests for validation.
 
-# 5.4 Integration the Validation with the ValidatorInput
+# 5.5 Integration the Validation with the ValidatorInput
 
 Now we have the validation working, let's integrate it into the ValidatorInput.
 
 Coding: Integrate validate.ts with ValidatorInput, write tests.
 
-# 5.5 Completing the Signup Component
+# 5.6 Completing the Signup Component
 
 We have a solid ValidatorInput control - let's finish the Signup component.
 
 Coding: Build out Signup with ValidatorInputs, emit an event when submitted and respond to event in parent. 
 
-# 5.6 Building the Users Store
+# 5.7 Building the Users Store
 
 To sign a user up, we need to persist them to the store.
 
 Coding: Create a basic Users store, with a `signup` action and `SET_CURRENT_USER` mutation. Set the `isCurrentUser` field to be true. Add tests for all of above. Add an `authenticated` field.
 
-# 5.7 Programmticaly show/hide Nav buttons based on User State
+# 5.8 Programmticaly show/hide Nav buttons based on User State
 
 Now we have the concept of a user, we will deciding which buttons to hide/show in the TopNav.
 
-# 5.8 Login/Logout
+# 5.9 Login/Logout
 
 Users can now sign up -- let's allow them to log in and log out.
 
