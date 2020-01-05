@@ -2142,7 +2142,7 @@ export interface Status {
   message?: string
 }
 
-type Rule = MinLength | MaxLength
+export type Rule = MinLength | MaxLength
 
 const minLength = (n: number): MinLength => {
   return {
@@ -2240,11 +2240,237 @@ describe('validate', () => {
 })
 ```
 
-# 5.5 Integration the Validation with the ValidatorInput
+# 5.5 Using `reactive` to integrate the validation with the ValidatorInput
 
 Now we have the validation working, let's integrate it into the ValidatorInput.
 
-Coding: Integrate validate.ts with ValidatorInput, write tests.
+Coding: Integrate validate.ts with ValidatorInput.
+
+```
+<template>
+  <div class="field">
+    <label class="label">
+      {{ label }}
+    </label>
+    <div class="control">
+      <input 
+        :type="type" 
+        :name="name"
+        @input="handleInput"
+        @keyup="handleValidation"
+        :value="value"
+        class="input"
+      />
+    </div>
+
+    <span>
+      <p v-if="!validity.valid" class="help is-danger">{{ validity.message }}</p>
+    </span>
+  </div>
+</template>
+
+<script lang="ts">
+import { createComponent, reactive } from '@vue/composition-api'
+
+import { validate, Rule, Status } from './validate'
+
+export default createComponent({
+  props: {
+    name: {
+      type: String,
+      required: true,
+    },
+
+    value: {
+      type: String,
+      required: true,
+    },
+
+    type: {
+      type: String,
+      required: true,
+    },
+
+    label: {
+      type: String,
+      required: true,
+    },
+
+    rules: {
+      type: Array as () => Rule[],
+      default: () => []
+    }
+  },
+
+  setup(props, ctx) {
+    const validity = reactive<Status>({
+      valid: true,
+      message: undefined
+    })
+
+    const handleInput = (e: any) => {
+      ctx.emit('input', e.target.value)
+    }
+
+    const handleValidation = () => {
+      const result = validate({ value: props.value, rules: props.rules })
+
+      validity.valid = result.valid
+      validity.message = result.message
+    }
+
+    return {
+      handleInput,
+      handleValidation,
+      validity,
+    }
+  }
+})
+</script>
+```
+
+```
+<template>
+  <section class="section">
+    <form @submit.prevent="handleSubmit">
+      <ValidatorInput 
+        name="username"
+        type="text"
+        label="Username"
+        v-model="username"
+        :rules="usernameRules"
+      />
+  </section>
+</template>
+
+<script lang="ts">
+import { createComponent, ref } from '@vue/composition-api'
+
+import ValidatorInput from '../ValidatorInput/ValidatorInput.vue'
+import { minLength, maxLength } from '../ValidatorInput/validate'
+
+export default createComponent({
+  components: {
+    ValidatorInput,
+  },
+
+  setup() {
+    const username = ref('')
+    const handleSubmit = () => {
+    }
+
+    return {
+      usernameRules: [minLength(5), maxLength(10)],
+      handleSubmit,
+      username
+    }
+  }
+})
+</script>
+```
+
+# 5.6 Testing Validator Input
+
+Ok, it works. Let's test it.
+
+Coding: write the tests. Touch on why setInput and trigger(keyup) does not work.
+
+```ts
+import { mount } from '@vue/test-utils'
+
+import { createTestVue } from '@/testHelper'
+import ValidatorInput from '../ValidatorInput.vue'
+import { minLength } from '../validate'
+
+describe('ValidatorInput', () => {
+  it('emits an event with current value', async () => {
+    const wrapper = mount(ValidatorInput, {
+      localVue: createTestVue(),
+      propsData: {
+        label: 'Username',
+        type: 'text',
+        name: 'username',
+        value: '',
+      }
+    })
+
+    wrapper.find('input').setValue('some-value')
+
+    expect(wrapper.emitted().input[0][0]).toBe('some-value')
+  })
+
+  it('shows an error when invalid', async () => {
+    const wrapper = mount(ValidatorInput, {
+      localVue: createTestVue(),
+      propsData: {
+        label: 'Username',
+        type: 'text',
+        name: 'username',
+        value: 'val',
+        rules: [minLength(4)]
+      }
+    })
+
+    wrapper.find('input').trigger('keyup')
+
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('.is-danger').text()).toEqual(
+      'The value is too short. Minimum length is 4.'
+    )
+  })
+
+  it('shows no error when valid', async () => {
+    const wrapper = mount(ValidatorInput, {
+      localVue: createTestVue(),
+      propsData: {
+        label: 'Username',
+        type: 'text',
+        name: 'username',
+        value: 'hello',
+        rules: [minLength(4)]
+      }
+    })
+
+    wrapper.find('input').trigger('keyup')
+
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('.is-danger').exists()).toEqual(false)
+  })
+})
+```
+
+# 5.7 Adding a debounce
+
+Let's add a debounce to make it less jarring. We will also see some new, cool tricks with Jest. Lodash has a debounce method.
+
+Coding: yarn add lodash @types/lodash. Test using `done`.
+
+```ts
+const handleValidation = debounce(() => {
+  const result = validate({ value: props.value, rules: props.rules })
+
+  validity.valid = result.valid
+  validity.message = result.message
+}, 500)
+```
+
+
+```ts
+it('emits an event with current value', async () => {
+  // ...
+  setTimeout(() => {
+    expect(wrapper.find('.is-danger').text()).toEqual(
+      'The value is too short. Minimum length is 4.'
+    )
+    done()
+  }, 600)
+
+  // ...
+```
+
+// ?????
 
 # 5.6 Completing the Signup Component
 

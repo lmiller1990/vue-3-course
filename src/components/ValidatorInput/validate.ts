@@ -13,7 +13,7 @@ export interface Status {
   message?: string
 }
 
-type Rule = MinLength | MaxLength
+export type Rule = MinLength | MaxLength
 
 const minLength = (n: number): MinLength => {
   return {

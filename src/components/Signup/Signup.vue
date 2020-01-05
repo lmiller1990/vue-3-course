@@ -6,6 +6,7 @@
         type="text"
         label="Username"
         v-model="username"
+        :rules="usernameRules"
       />
       {{ username }}
 
@@ -28,6 +29,7 @@
 import { createComponent, ref } from '@vue/composition-api'
 
 import ValidatorInput from '../ValidatorInput/ValidatorInput.vue'
+import { minLength, maxLength } from '../ValidatorInput/validate'
 
 export default createComponent({
   components: {
@@ -35,11 +37,12 @@ export default createComponent({
   },
 
   setup() {
-    const username = ref('Lachlan')
+    const username = ref('')
     const handleSubmit = () => {
     }
 
     return {
+      usernameRules: [minLength(5), maxLength(10)],
       handleSubmit,
       username
     }
