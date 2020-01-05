@@ -18,6 +18,12 @@ export interface User {
 }
 
 
+export interface NewUser {
+  username: string
+  password: string
+  email: string
+}
+
 export interface HashMap<T> {
   [key: string]: T
 }

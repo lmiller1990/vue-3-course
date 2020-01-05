@@ -2470,15 +2470,102 @@ it('emits an event with current value', async () => {
   // ...
 ```
 
-// ?????
-
-# 5.6 Completing the Signup Component
+# 5.8 Completing the Signup Component
 
 We have a solid ValidatorInput control - let's finish the Signup component.
 
-Coding: Build out Signup with ValidatorInputs, emit an event when submitted and respond to event in parent. 
+Coding: Build out Signup with ValidatorInputs, implement forValidity state with type safety, emit an event when submitted and respond to event in parent. 
 
+Exercise: Implement a format validation rule.
+
+
+```html Signup.vue
+<script lang="ts">
+import { createComponent, ref, reactive } from '@vue/composition-api'
+
+import ValidatorInput from '../ValidatorInput/ValidatorInput.vue'
+import { minLength, maxLength } from '../ValidatorInput/validate'
+import { NewUser } from '@/types'
+
+type Name = 'username' | 'password' | 'email'
+
+interface ValidatedInput {
+  name: Name
+  valid: boolean
+}
+
+type FormValidationState = {
+  [key in Name]: boolean
+}
+
+export default createComponent({
+  components: {
+    ValidatorInput,
+  },
+
+  setup(props, ctx) {
+    const formValidationState = reactive<FormValidationState>({
+      username: false,
+      email: false,
+      password: false,
+    })
+
+    const handleSubmit = () => {
+      const newUser: NewUser = {
+        username: username.value,
+        email: email.value,
+        password: password.value,
+      }
+      ctx.emit('signup', newUser)
+    }
+
+    const handleValidate = (validated: ValidatedInput) => {
+      formValidationState[validated.name] = validated.valid
+      formValid.value = Object.values(formValidationState).every(x => x)
+    }
+
+    return {
+      handleValidate,
+    }
+  }
+})
+</script>
+```
+
+```ts ValidatorInput
+const handleValidation = debounce(() => {
+  const result = validate({ value: props.value, rules: props.rules })
+  validity.valid = result.valid
+  validity.message = result.message
+  ctx.emit('validate', {
+    name: props.name,
+    valid: result.valid,
+  })
+}, 500)
+```
+
+```ts src/types.ts
+export interface NewUser {
+  username: string
+  password: string
+  email: string
+}
+```
+
+```ts views/NewUser.vue
+const handleSignup = (newUser: NewUser) => {
+  // ... dispatch createUser action
+}
+
+return {
+  handleSignup,
+}
+```
+
+
+6.0 ????
 # 5.7 Building the Users Store
+
 
 To sign a user up, we need to persist them to the store.
 

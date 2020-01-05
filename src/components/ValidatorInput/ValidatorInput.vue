@@ -66,9 +66,12 @@ export default createComponent({
 
     const handleValidation = debounce(() => {
       const result = validate({ value: props.value, rules: props.rules })
-
       validity.valid = result.valid
       validity.message = result.message
+      ctx.emit('validate', {
+        name: props.name,
+        valid: result.valid,
+      })
     }, 500)
 
     return {
