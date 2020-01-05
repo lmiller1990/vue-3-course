@@ -1858,25 +1858,16 @@ it('calls a create action when a post is submitted and redirects to root', async
 
 This is the section where we finally introduce the concept of a user. We will change which buttons show in the TopNav depending on if the user has signed in, as well as allow users to edit their own posts, and view other users' post. We will also implement a sign in form with some basic validation.
 
-Coding: Show the signup form with validation, and how TopNav changes depending on the logged in state.
+Coding: Show the signup form with validation.
 
 In a large, complex app, I might lean towards something like Vuelidate or Vee-Validate. They are large, complete libraries. Since the validation I want is very simple, I'll be writing my own. It's also a great way to see some more of the Composition API, as well as build our first truly modular component that could easily be reused in another application.
 
-# 5.1 Defining the User interface
+# 5.1 Creating the NewUser component and route
 
-In this section, we consider how we will store users, and what keys the user interface will have. Let's also make the NewUser route and view.
+Let's make the NewUser route and view.
 
-Coding: create the User interface. Create a mock user. Create  a NewUser.vue component and route. Explain isCurrentUser field.
+Coding: Create a NewUser.vue component and route.
 
-
-```ts
-// src/types.ts
-export interface User {
-  id: number
-  username: string
-  isCurrentUser: boolean
-}
-```
 
 ```ts // router/index.ts
 import NewUser from '../views/NewUser.vue'
@@ -2603,12 +2594,360 @@ describe('Signup', () => {
     }, 600)
   })
 })
-  
 ```
 
 
-6.0 ????
-# 5.7 Building the Users Store
+# 6.0 Creating Users, Log In, Log Out
+
+Introduce the section. We will create the entire Users store, then implement login/logout. We will also code logic to update the TopNav respectively.
+
+Coding: Demo.
+
+# 6.1: Defining the User Interface
+
+Let's define a User interface, and create some mock users.
+
+```ts
+// src/types.ts
+export interface User {
+  id: number
+  username: string
+  isCurrentUser: boolean
+}
+```
+
+```ts resources.ts
+const userA: User = {
+  id: 1,
+  username: 'Lachlan',
+  isCurrentUser: true
+}
+
+const userB: User = {
+  id: 2,
+  username: 'Max',
+  isCurrentUser: false
+}
+```
+
+# 6.2 Defining the Users Store
+
+Let's define the Users Store; all the classes, the mutations we want, and the initial state.
+
+Coding: the store. In the next video, we will use TDD to write the mutations.
+
+```ts
+import { Module, Mutations, Actions, Getters } from 'vuex-smart-module'
+import { Store } from 'vuex'
+
+import { User, HashMap, NewUser } from '@/types'
+import { userA, userB } from '@/resources'
+
+export interface State {
+  ids: number[]
+  all: HashMap<User>
+  authenticated: boolean
+}
+
+export class UsersState implements State {
+  ids = [userA.id, userB.id]
+  all = {
+    [userA.id]: userA,
+    [userB.id]: userB,
+  }
+  authenticated = false
+}
+
+export class UsersMutations extends Mutations<UsersState> {
+  LOGIN(payload: User) {
+  }
+
+  LOGOUT(payload: User) {
+  }
+
+  ADD_USER(payload: NewUser) {
+  }
+}
+
+export class UsersGetters extends Getters<UsersState> {
+}
+
+export class UsersActions extends Actions<UsersState, UsersGetters, UsersMutations, UsersActions> {
+}
+
+const users = new Module({
+  state: UsersState,
+  mutations: UsersMutations,
+  actions: UsersActions,
+  getters: UsersGetters,
+})
+
+const useUsers = ($store: Store<any>) => {
+  return users.context($store)
+}
+
+export {
+  users,
+  useUsers,
+}
+```
+
+# 6.3 Writing the Mutations using TDD
+
+TDD Time!!
+
+Coding: Mutations and tests.
+
+```ts
+export class UsersMutations extends Mutations<UsersState> {
+  LOGIN(payload: User) {
+    if (!this.state.all[payload.id]) {
+      this.state.ids.push(payload.id)
+    }
+
+    this.state.all[payload.id] = {
+      ...payload,
+      isCurrentUser: true,
+    }
+    this.state.authenticated = true
+  }
+
+  LOGOUT(payload: User) {
+    this.state.all[payload.id].isCurrentUser = false
+    this.state.authenticated = false
+  }
+
+  ADD_USER(payload: User) {
+    if (!this.state.all[payload.id]) {
+      this.state.ids.push(payload.id)
+    }
+
+    this.state.all[payload.id] = payload
+  }
+}
+```
+
+```ts
+import { inject } from 'vuex-smart-module'
+
+import { State, UsersMutations, UsersActions, UsersGetters } from '../index'
+import { User } from '@/types'
+
+const createState = (): State => {
+  return {
+    ids: [],
+    all: {},
+    authenticated: false,
+  }
+}
+
+
+describe('Mutations - LOGIN', () => {
+  it('adds user to state if necessary and sets authenticated', () => {
+    const state = createState()
+    const user: User = {
+      id: 3,
+      username: 'User 3',
+      isCurrentUser: false 
+    }
+
+    const mutations = inject(UsersMutations, {
+      state
+    })
+
+    mutations.LOGIN(user)
+
+    expect(state).toEqual<State>({
+      authenticated: true,
+      ids: [3],
+      all: {
+        3: { ...user, isCurrentUser: true }
+      }
+    })
+  })
+})
+
+describe('Mutations - LOGOUT', () => {
+  it('sets isCurrentUser to false and authenticated to false', () => {
+    const user: User = {
+      id: 3,
+      username: 'User 3',
+      isCurrentUser: true 
+    }
+    const state: State = {
+      ...createState(),
+      authenticated: true,
+      all: {
+        3: user
+      },
+      ids: [3]
+    }
+    const mutations = inject(UsersMutations, {
+      state
+    })
+
+    mutations.LOGOUT(user)
+
+    expect(state).toEqual<State>({
+      all: {
+        3: { ...user, isCurrentUser: false }
+      },
+      ids: [3],
+      authenticated: false,
+    })
+  })
+})
+
+
+describe('Mutations - ADD_USER', () => {
+  it('adds a new user to the state', () => {
+    const user: User = {
+      id: 3,
+      username: 'User 3',
+      isCurrentUser: false 
+    }
+    const state: State = {
+      ...createState(),
+      authenticated: false,
+      all: {},
+      ids: []
+    }
+    const mutations = inject(UsersMutations, {
+      state
+    })
+
+    mutations.ADD_USER(user)
+
+    expect(state).toEqual<State>({
+      all: {
+        3: user,
+      },
+      ids: [3],
+      authenticated: false,
+    })
+  })
+})
+```
+
+# 6.4 Writing the Actions using TDD
+
+Actions!
+
+Coding: Actions. Tests. Pros/cons of using delay, discuss mock.calls, mock Axios. Point out duplication and opportunity to refactor as an exercise.
+
+
+```ts
+export class UsersActions extends Actions<UsersState, UsersGetters, UsersMutations, UsersActions> {
+  async login(user: NewUser) {
+    await delay() // axios.post('/users/login')
+    this.commit('LOGIN', {
+      id: 3,
+      username: user.username,
+      isCurrentUser: true 
+    })
+  }
+
+  async logout(user: User) {
+    await delay()
+    this.commit('LOGOUT', user)
+  }
+
+  async signup(user: NewUser) {
+    await delay() // const response = await axios.post('/users/signup')
+    this.commit('ADD_USER', {
+      id: 3,
+      username: user.username,
+      isCurrentUser: false 
+    })
+    this.commit('LOGIN', {
+      id: 3,
+      username: user.username,
+      isCurrentUser: true 
+    })
+  }
+}
+```
+
+```ts
+describe('Actions - login', () => {
+  it('commits a LOGIN mutation', async () => {
+    const newUser: NewUser = {
+      email: 'abc@def.com',
+      password: 'asdf',
+      username: 'Abc user'
+    }
+    const mockCommit = jest.fn()
+    const state = createState()
+    const actions = inject(UsersActions, {
+      state,
+      commit: mockCommit
+    })
+
+    await actions.login(newUser)
+
+    expect(mockCommit).toHaveBeenCalledWith('LOGIN', {
+      username: newUser.username,
+      id: 3,
+      isCurrentUser: true,
+    })
+  })
+})
+
+describe('Actions - logout', () => {
+  it('commits a LOGOUT mutation', async () => {
+    const user: User = {
+      id: 3,
+      username: 'User 3',
+      isCurrentUser: true 
+    }
+    const state = createState()
+    const mockCommit = jest.fn()
+    const actions = inject(UsersActions, {
+      state,
+      commit: mockCommit
+    })
+
+    await actions.logout(user)
+
+    expect(mockCommit).toHaveBeenCalledWith('LOGOUT', user)
+  })
+})
+
+describe('Actions - signup', () => {
+  it('commits a ADD_USER mutation and LOGIN mutation', async () => {
+    const newUser: NewUser = {
+      username: 'User 3',
+      email: 'abc@def.com',
+      password: 'asdf'
+    }
+    const user: User = {
+      id: 3,
+      username: 'User 3',
+      isCurrentUser: true,
+    }
+    const state = createState()
+    const mockCommit = jest.fn()
+    const actions = inject(UsersActions, {
+      state,
+      commit: mockCommit
+    })
+
+    await actions.signup(newUser)
+
+    expect(mockCommit.mock.calls[0]).toEqual(['ADD_USER', {...user, isCurrentUser: false}])
+    expect(mockCommit.mock.calls[1]).toEqual(['LOGIN', user])
+  })
+})
+```
+
+
+# 6.5 Writing the Actions using TDD
+
+
+/****
+OTHER STUFF
+****/
+
 
 
 To sign a user up, we need to persist them to the store.

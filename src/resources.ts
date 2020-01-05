@@ -13,13 +13,13 @@ const post: Post = {
   created: moment()
 }
 
-const currentUser: User = {
+const userA: User = {
   id: 1,
   username: 'Lachlan',
   isCurrentUser: true
 }
 
-const notCurrentUser: User = {
+const userB: User = {
   id: 2,
   username: 'Max',
   isCurrentUser: false
@@ -27,6 +27,6 @@ const notCurrentUser: User = {
 
 export {
   post,
-  currentUser,
-  notCurrentUser,
+  userA,
+  userB,
 }
