@@ -2120,12 +2120,125 @@ describe('ValidatorInput', () => {
 })
 ```
 
-
 # 5.4 Defining the Rule type and test driving the validator.ts.
 
 Before we get started showing errors and validations in the form, let's think a bit about the API we want to expose - after all, we want this component to be modular and generic enough to be used in future applications.
 
-Coding: Rule type, for MinLength and Format, and write the tests for validation.
+Coding: Rule type, for MinLength, and write the tests for validation using TDD. Show that it and aexpect are generic.
+
+```ts validation.ts
+interface MinLength {
+  name: 'min-length'
+  length: number
+}
+
+interface MaxLength {
+  name: 'max-length'
+  length: number
+}
+
+export interface Status {
+  valid: boolean
+  message?: string
+}
+
+type Rule = MinLength | MaxLength
+
+const minLength = (n: number): MinLength => {
+  return {
+    name: 'min-length',
+    length: n
+  }
+}
+
+const maxLength = (n: number): MaxLength => {
+  return {
+    name: 'max-length',
+    length: n
+  }
+}
+
+interface Payload {
+  value: string
+  rules: Rule[]
+}
+
+const validate = (payload: Payload): Status => {
+  for (const rule of payload.rules) {
+    if (rule.name === 'min-length' && payload.value.length < rule.length) {
+      return {
+        valid: false,
+        message: `The value is too short. Minimum length is ${rule.length}.`
+      }
+    }
+
+    if (rule.name === 'max-length' && payload.value.length > rule.length) {
+      return {
+        valid: false,
+        message: `The value is too long. Maximum length is ${rule.length}.`
+      }
+    }
+  }
+
+  return {
+    valid: true,
+  }
+}
+
+export {
+  validate,
+  minLength,
+  maxLength,
+}
+```
+
+```ts validation.spec.ts
+import { validate, minLength, maxLength, Status } from '../validate'
+
+describe('validate', () => {
+  it('returns invalid due when too short', () => {
+    const result = validate({ 
+      value: '1234',
+      rules: [minLength(5)]
+    })
+
+    const expected: Status = {
+      valid: false,
+      message: 'The value is too short. Minimum length is 5.'
+    }
+
+    expect(result).toEqual(expected)
+  })
+
+  it('returns invalid due when too long', () => {
+    const result = validate({ 
+      value: '12345678',
+      rules: [maxLength(5)]
+    })
+
+    const expected: Status = {
+      valid: false,
+      message: 'The value is too long. Maximum length is 5.'
+    }
+
+    expect(result).toEqual(expected)
+  })
+
+  it('returns valid when length is within limits', () => {
+    const result = validate({ 
+      value: '1234',
+      rules: [minLength(3), maxLength(5)]
+    })
+
+    const expected: Status = {
+      valid: true,
+      message: undefined
+    }
+
+    expect(result).toEqual(expected)
+  })
+})
+```
 
 # 5.5 Integration the Validation with the ValidatorInput
 
