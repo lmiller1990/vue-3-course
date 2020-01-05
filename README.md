@@ -2941,7 +2941,113 @@ describe('Actions - signup', () => {
 ```
 
 
-# 6.5 Writing the Actions using TDD
+# 6.5 Writing the Getters using TDD
+
+Easy... just code getById and currentUser.
+
+
+```ts
+describe('Getters - getById', () => {
+  it('returns a user by their id', () => {
+    const state: State = {
+      ...createState(),
+      ids: [userA.id],
+      all: {
+        [userA.id]: userA
+      }
+    }
+    const getters = inject(UsersGetters, {
+      state
+    })
+
+    const currentUser = getters.getById(userA.id)
+
+    expect(currentUser).toEqual(userA)
+  })
+})
+
+describe('Getters - currentUser', () => {
+  it('returns the current user', () => {
+    const state: State = {
+      ...createState(),
+      authenticated: true,
+      ids: [userA.id],
+      all: {
+        [userA.id]: {
+          ...userA,
+          isCurrentUser: true,
+        },
+      }
+    }
+    const getters = inject(UsersGetters, {
+      state
+    })
+
+    const currentUser = getters.currentUser()
+
+    expect(currentUser).toEqual(userA)
+  })
+})
+```
+
+```ts
+export class UsersGetters extends Getters<UsersState> {
+  getById(id: number) {
+    return this.state.all[id]
+  }
+
+  currentUser() {
+    if (!this.state.authenticated) {
+      return
+    }
+    const id = this.state.ids.find(x => this.state.all[x].isCurrentUser)!
+    return this.state.all[id]
+  }
+}
+```
+
+# 6.6 Importing the Store, Signup and Login!
+
+Now we have done all the hard work, let's sign our user in!
+
+Let's import the store to the store/index.ts so we can actually use it. Then let's allow a user to sign in!
+
+
+Coding: import the users store to store/index.ts. Update NewUser.vue to dispatch the action and redirect. Explain how the same user will be signed-in no matter what.
+
+```ts
+import { posts } from './posts'
+
+const root = new Module({
+  modules: {
+    posts: posts,
+    users: users,
+  }
+})
+```
+
+```ts
+import { useUsers } from '@/store/users'
+
+export default createComponent({
+  setup(props, ctx) {
+    const users = useUsers(ctx.root.$store)
+    const handleSignup = async (newUser: NewUser) => {
+      // ... dispatch createUser action
+      await users.actions.signup(newUser)
+      ctx.root.$router.push('/')
+    }
+
+    return {
+      handleSignup,
+    }
+  }
+})
+```
+
+# 6.7 Update the TopNav based on current authentication status
+
+
 
 
 /****
