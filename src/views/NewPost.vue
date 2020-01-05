@@ -20,6 +20,8 @@ export default createComponent({
     PostWriter
   },
 
+  props: {},
+
   setup(props, ctx) {
     const posts = usePosts(ctx.root.$store)
 

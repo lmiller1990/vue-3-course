@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import NewPost from '../views/NewPost.vue'
+import NewUser from '../views/NewUser.vue'
 
 Vue.use(VueRouter)
 
@@ -15,6 +16,11 @@ const routes = [
     path: '/posts/new',
     name: 'NewPost',
     component: NewPost
+  },
+  {
+    path: '/users/new',
+    name: 'NewUser',
+    component: NewUser
   },
   {
     path: '/about',

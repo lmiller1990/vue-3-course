@@ -1,6 +1,6 @@
 import moment from 'moment'
 
-import { Post } from '@/types'
+import { Post, User } from '@/types'
 
 const post: Post = {
   title: 'title',
@@ -13,6 +13,20 @@ const post: Post = {
   created: moment()
 }
 
+const currentUser: User = {
+  id: 1,
+  username: 'Lachlan',
+  isCurrentUser: true
+}
+
+const notCurrentUser: User = {
+  id: 2,
+  username: 'Max',
+  isCurrentUser: false
+}
+
 export {
-  post
+  post,
+  currentUser,
+  notCurrentUser,
 }

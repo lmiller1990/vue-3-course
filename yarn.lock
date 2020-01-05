@@ -9284,10 +9284,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@~3.5.3:
-  version "3.5.3"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.5.3.tgz#c830f657f93f1ea846819e929092f5fe5983e977"
-  integrity sha512-ACzBtm/PhXBDId6a6sDJfroT2pOWt/oOnk4/dElG5G33ZL776N3Y6/6bKZJBFpd+b05F3Ct9qDjMeJmRWtE2/g==
+typescript@^3.8.0-dev.20200104:
+  version "3.8.0-dev.20200104"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.8.0-dev.20200104.tgz#521b2f0b5a288b6e3f8a095525f64712330cc649"
+  integrity sha512-Zdb8X1uzvUPrRvRBqega83NxqCuN/kyxuXG1u8BV10mGOqfwQb0SreSDoDDM1zUgrqFZ93neVh3DVyWTvx6XlA==
 
 uglify-js@3.4.x:
   version "3.4.10"

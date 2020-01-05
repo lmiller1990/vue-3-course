@@ -58,6 +58,8 @@ export default createComponent({
     TimelineItem,
   },
 
+  props: {},
+
   setup(props, ctx) {
     const posts = usePosts(ctx.root.$store)
     posts.actions.fetchAll()

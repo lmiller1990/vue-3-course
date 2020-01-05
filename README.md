@@ -1866,7 +1866,45 @@ In a large, complex app, I might lean towards something like Vuelidate or Vee-Va
 
 In this section, we consider how we will store users, and what keys the user interface will have. Let's also make the NewUser route and view.
 
-Coding: create the User interface. Create a mock user. Create  a NewUser.vue component and route.
+Coding: create the User interface. Create a mock user. Create  a NewUser.vue component and route. Explain isCurrentUser field.
+
+
+```ts
+// src/types.ts
+export interface User {
+  id: number
+  username: string
+  isCurrentUser: boolean
+}
+```
+
+```ts // router/index.ts
+import NewUser from '../views/NewUser.vue'
+
+const routes = [
+  {
+    path: '/users/new',
+    name: 'NewUser',
+    component: NewUser
+  },
+  // ...
+```
+
+```html // views/NewPost.vue
+<template>
+  <div>
+    New User
+  </div>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
+
+export default createComponent({
+  name: 'NewUser',
+})
+</script>
+```
 
 # 5.2 Creating new NewUser route implementing v-model on a Custom Component
 

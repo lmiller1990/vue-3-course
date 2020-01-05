@@ -11,6 +11,13 @@ export interface Post {
   tags: string[]
 }
 
+export interface User {
+  id: number
+  username: string
+  isCurrentUser: boolean
+}
+
+
 export interface HashMap<T> {
   [key: string]: T
 }
