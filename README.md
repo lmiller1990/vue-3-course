@@ -3047,7 +3047,141 @@ export default createComponent({
 
 # 6.7 Update the TopNav based on current authentication status
 
+Let's update the TopNav now we have the concept of authentication.
 
+Coding: Add data-test attributes. Stub the Router Link. Mock the users store.
+
+```html // TopNav.vue
+<template>
+  <nav class="navbar">
+    <nav class="navbar-brand">
+      <RouterLink 
+        class="navbar-item"
+        to="/"
+      >  
+        Vue 3 Composition API
+      </RouterLink>
+    </nav>
+
+    <div class="navbar-menu">
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="buttons">
+            <RouterLink 
+              v-if="!authenticated"
+              class="button"
+              to="/users/new"
+              data-test-signup
+            >  
+              Sign Up
+            </RouterLink>
+
+            <RouterLink 
+              v-if="!authenticated"
+              class="button"
+              to="/users/login"
+              data-test-login
+            >  
+              Log In
+            </RouterLink>
+
+            <RouterLink 
+              v-if="authenticated"
+              class="button"
+              to="/posts/new"
+              data-test-new-post
+            >  
+              New Post
+            </RouterLink>
+
+            <button 
+              v-if="authenticated"
+              class="button"
+              @click="logout"
+              data-test-logout
+            >  
+              Log Out
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </nav>
+</template>
+
+<script lang="ts">
+import { createComponent, computed } from '@vue/composition-api'
+
+import { useUsers } from '@/store/users'
+
+export default createComponent({
+  name: 'TopNav',
+
+  setup(props, ctx) {
+    const users = useUsers(ctx.root.$store)
+    const logout = () => {
+      console.log('Log out')
+    }
+
+    const authenticated = computed(() => users.state.authenticated)
+
+    return {
+      logout,
+      authenticated,
+    }
+  },
+})
+</script>
+```
+
+```ts // TopNav.spec.ts
+import { mount } from '@vue/test-utils'
+
+import { createTestVue } from '@/testHelper'
+import TopNav from '../TopNav.vue'
+
+let mockAuthenticated = false
+jest.mock('@/store/users', () => {
+  return {
+    useUsers: () => ({
+      state: {
+        authenticated: mockAuthenticated
+      }
+    })
+  }
+})
+
+
+it('shows login and signup when user is not authenticated', () => {
+  mockAuthenticated = false
+  const wrapper = mount(TopNav, {
+    localVue: createTestVue(),
+    stubs: {
+      RouterLink: true
+    }
+  })
+
+  expect(wrapper.find('[data-test-login]').exists()).toEqual(true)
+  expect(wrapper.find('[data-test-signup]').exists()).toEqual(true)
+  expect(wrapper.find('[data-test-logout]').exists()).toEqual(false)
+  expect(wrapper.find('[data-test-new-post]').exists()).toEqual(false)
+})
+
+it('shows new post and logout when user is authenticated', () => {
+  mockAuthenticated = true
+  const wrapper = mount(TopNav, {
+    localVue: createTestVue(),
+    stubs: {
+      RouterLink: true
+    }
+  })
+
+  expect(wrapper.find('[data-test-login]').exists()).toEqual(false)
+  expect(wrapper.find('[data-test-signup]').exists()).toEqual(false)
+  expect(wrapper.find('[data-test-logout]').exists()).toEqual(true)
+  expect(wrapper.find('[data-test-new-post]').exists()).toEqual(true)
+})
 
 
 /****
@@ -3056,17 +3190,6 @@ OTHER STUFF
 
 
 
-To sign a user up, we need to persist them to the store.
-
-Coding: Create a basic Users store, with a `signup` action and `SET_CURRENT_USER` mutation. Set the `isCurrentUser` field to be true. Add tests for all of above. Add an `authenticated` field.
-
-# 5.8 Programmticaly show/hide Nav buttons based on User State
-
-Now we have the concept of a user, we will deciding which buttons to hide/show in the TopNav.
-
-# 5.9 Login/Logout
-
-Users can now sign up -- let's allow them to log in and log out.
 
 # 6.0 Finishing the App with Post Show page, Editing an Existing Post, Various Other Improvements
 
