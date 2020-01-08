@@ -3344,8 +3344,8 @@ import PostViewer from '../PostViewer.vue'
 import { post } from '@/resources'
 import VueRouter from 'vue-router'
 
-describe('Signup', () => {
-  it('can be submitted when all fields are valid', async () => {
+describe('PostViewer', () => {
+  it('Renders the article', async () => {
     const localVue = createTestVue()
     localVue.use(VueRouter)
     const wrapper = mount(PostViewer, {
@@ -3369,3 +3369,101 @@ describe('Signup', () => {
 # 7.3 Authorizing Editing the Post
 
 We haven't got an `/edit` link - but this is pretty easy, we can reuse the `PostWriter` component. What we do need to do is ensure that a user cannot edit another user's post.
+
+Coding: Use currentUser getter and authorId decide if a post is editable.
+
+
+```ts PostViewer
+<RouterLink 
+  v-if="canEdit"
+  class="button is-rounded is-link" 
+  data-edit
+  to="editUrl"
+>
+  <i class="fas fa-edit" />
+</RouterLink>
+
+// ...
+
+setup(props, ctx) {
+  const users = useUsers(ctx.root.$store)
+  const canEdit = ref(false)
+  const editUrl = `/posts/${props.post.id}/edit`
+
+  if (
+    users.getters.currentUser() &&
+    props.post.authorId === users.getters.currentUser()!.id
+  ) {
+    canEdit.value = true
+  }
+
+  return {
+    canEdit,
+    editUrl,
+  }
+}
+```
+
+Test:
+
+```ts PostViewer.spec.ts
+import { mount, } from '@vue/test-utils'
+import VueRouter from 'vue-router'
+
+import { createTestVue } from '@/testHelper'
+import PostViewer from '../PostViewer.vue'
+import { post, userA as mockUserA } from '@/resources'
+
+jest.mock('@/store/users', () => {
+  return {
+    useUsers: () => ({
+      getters: {
+        currentUser: () => ({
+          ...mockUserA,
+          id: 1
+        })
+      }
+    })
+  }
+})
+
+
+describe('PostViewer', () => {
+  const localVue = createTestVue()
+  localVue.use(VueRouter)
+
+  it('shows edit button when authorized', async () => {
+    const wrapper = mount(PostViewer, {
+      localVue,
+      router: new VueRouter(),
+      propsData: {
+        post: {
+          ...post,
+          authorId: 1,
+          title: 'Title',
+          markdown: '<div>OK</div>'
+        }
+      }
+    })
+
+    expect(wrapper.find('[data-edit]').exists()).toBe(true)
+  })
+
+  it('does not show edit button when not authorized', async () => {
+    const wrapper = mount(PostViewer, {
+      localVue,
+      router: new VueRouter(),
+      propsData: {
+        post: {
+          ...post,
+          authorId: 2,
+          title: 'Title',
+          markdown: '<div>OK</div>'
+        }
+      }
+    })
+
+    expect(wrapper.find('[data-edit]').exists()).toBe(false)
+  })
+})
+```

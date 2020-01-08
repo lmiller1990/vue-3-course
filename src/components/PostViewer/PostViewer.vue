@@ -7,7 +7,12 @@
       <div class="columns">
         <div class="column">
           <div class="is-pulled-right">
-            <RouterLink class="button is-rounded is-link" to="#">
+            <RouterLink 
+              v-if="canEdit"
+              class="button is-rounded is-link" 
+              data-edit
+              to="editUrl"
+            >
               <i class="fas fa-edit" />
             </RouterLink>
 
@@ -36,6 +41,7 @@
 <script lang="ts">
 import { createComponent, ref, reactive } from '@vue/composition-api'
 
+import { useUsers } from '@/store/users'
 import { Post } from '../../types'
 
 export default createComponent({
@@ -47,7 +53,20 @@ export default createComponent({
   },
 
   setup(props, ctx) {
+    const users = useUsers(ctx.root.$store)
+    const canEdit = ref(false)
+    const editUrl = `/posts/${props.post.id}/edit`
+
+    if (
+      users.getters.currentUser() &&
+      props.post.authorId === users.getters.currentUser()!.id
+    ) {
+      canEdit.value = true
+    }
+
     return {
+      canEdit,
+      editUrl,
     }
   }
 })
