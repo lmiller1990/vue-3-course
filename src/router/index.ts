@@ -14,14 +14,14 @@ const routes = [
     component: Home
   },
   {
-    path: '/posts/:id',
-    name: 'ShowPost',
-    component: ShowPost
-  },
-  {
     path: '/posts/new',
     name: 'NewPost',
     component: NewPost
+  },
+  {
+    path: '/posts/:id',
+    name: 'ShowPost',
+    component: ShowPost
   },
   {
     path: '/users/new',

@@ -3,9 +3,9 @@
     Loading...
   </div>
 
-  <div v-else>
-    {{ post }}
-  </div>
+  <PostViewer v-else
+    :post="post"
+  />
 </template>
 
 <script lang="ts">
@@ -13,13 +13,14 @@ import { ref, createComponent, computed, watch } from '@vue/composition-api'
 
 import { usePosts } from '@/store/posts'
 import { Post } from '../types'
+import PostViewer from '@/components/PostViewer/PostViewer.vue'
 
 
 export default createComponent({
   name: 'ShowPost',
   
   components: {
-    // PostViewer,
+    PostViewer,
   },
 
   setup(props, ctx) {

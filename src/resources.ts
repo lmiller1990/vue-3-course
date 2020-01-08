@@ -5,7 +5,10 @@ import { Post, User } from '@/types'
 const post: Post = {
   title: 'title',
   content: 'content',
-  markdown: '<h1>Hello</h1>',
+  markdown: `<h1 id="my-great-post">My great post!</h1>
+  <p>This is a <em>really exciting</em> post.</p>
+  <pre><code>const a = <span class="hljs-function"><span class="hljs-params">(val: <span class="hljs-built_in">string</span>)</span> =&gt;</span> {}</code></pre>
+  `,
   authorId: 1,
   likes: 10,
   id: 1,
