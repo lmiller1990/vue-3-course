@@ -1,7 +1,8 @@
 import { Module, Mutations, Actions, Getters } from 'vuex-smart-module'
-import { Post, HashMap } from '@/types'
-import { post } from '@/resources'
 import { Store } from 'vuex'
+
+import { Post, HashMap } from '@/types'
+import { post, allPosts } from '@/resources'
 
 export interface State {
   touched: boolean
@@ -49,6 +50,14 @@ const delay = () => {
 }
 
 export class PostsActions extends Actions<PostsState, PostsGetters, PostsMutations, PostsActions> {
+  async getById(id: number) {
+    // const posts = await axios.get('/api/posts/:id')
+    await delay()
+    await delay()
+    const thePost = allPosts.find(x => x.id === id)!
+    this.commit('SET_POSTS', [ thePost ])
+  }
+
   async fetchAll() {
     // const posts = await axios.get('/api/posts')
     await delay()

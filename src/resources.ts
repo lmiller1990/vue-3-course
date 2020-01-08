@@ -13,6 +13,23 @@ const post: Post = {
   created: moment()
 }
 
+
+const anotherPost: Post = {
+  title: 'This is an interesting post',
+  content: 'Content',
+  markdown: '<h1>Hello</h1>',
+  authorId: 1,
+  likes: 10,
+  id: 2,
+  tags: [],
+  created: moment()
+}
+
+const allPosts = [
+  post,
+  anotherPost,
+]
+
 const userA: User = {
   id: 1,
   username: 'Lachlan',
@@ -26,7 +43,9 @@ const userB: User = {
 }
 
 export {
+  allPosts,
   post,
+  anotherPost,
   userA,
   userB,
 }

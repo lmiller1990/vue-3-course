@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import NewPost from '../views/NewPost.vue'
 import NewUser from '../views/NewUser.vue'
+import ShowPost from '../views/ShowPost.vue'
 
 Vue.use(VueRouter)
 
@@ -11,6 +12,11 @@ const routes = [
     path: '/',
     name: 'home',
     component: Home
+  },
+  {
+    path: '/posts/:id',
+    name: 'ShowPost',
+    component: ShowPost
   },
   {
     path: '/posts/new',

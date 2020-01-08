@@ -1,7 +1,7 @@
 import { inject } from 'vuex-smart-module'
 
 import { State, PostsMutations, PostsActions, PostsGetters } from '../index'
-import { post } from '@/resources'
+import { post, anotherPost } from '@/resources'
 import { Post } from '@/types'
 
 const createState = (): State => {
@@ -82,6 +82,19 @@ describe('actions - fetchAll', () => {
     await actions.fetchAll()
 
     expect(commit).toHaveBeenCalledWith('SET_POSTS', [ post ])
+  })
+})
+
+describe('actions - getById', () => {
+  it('fetches post from an API by id', async () => {
+    const commit = jest.fn()
+    const actions = inject(PostsActions, {
+      commit
+    })
+
+    await actions.getById(2)
+
+    expect(commit).toHaveBeenCalledWith('SET_POSTS', [ anotherPost ])
   })
 })
 

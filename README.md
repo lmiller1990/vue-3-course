@@ -3182,6 +3182,7 @@ it('shows new post and logout when user is authenticated', () => {
   expect(wrapper.find('[data-test-logout]').exists()).toEqual(true)
   expect(wrapper.find('[data-test-new-post]').exists()).toEqual(true)
 })
+```
 
 
 /****
@@ -3189,34 +3190,87 @@ OTHER STUFF
 ****/
 
 
+# 7.0 Finish the App
+
+By this point, I have introduced most of the new features and techniques I wanted to cover. This last section will be about adding the finishing touches to the app, going over some of the techniques we covered and fixing some edge cases. 
+
+# 7.1 Adding a Show Post Page
+
+We allowed the user to create beautiful posts using markdown with syntax highlighting - we should add a show page now! This is pretty easy.
+
+Coding: ShowPost.vue. Update routes. Add a getById action.
+
+```ts router/index.ts
+{
+  path: '/posts/:id',
+  name: 'ShowPost',
+  component: ShowPost
+}
+```
+
+```ts
+async getById(id: number) {
+  // const posts = await axios.get('/api/posts/:id')
+  await delay()
+  await delay()
+  const thePost = allPosts.find(x => x.id === id)!
+  console.log(thePost)
+  this.commit('SET_POSTS', [ thePost ])
+}
+```
+
+```ts
+describe('actions - getById', () => {
+  it('fetches post from an API by id', async () => {
+    const commit = jest.fn()
+    const actions = inject(PostsActions, {
+      commit
+    })
+
+    await actions.getById(2)
+
+    expect(commit).toHaveBeenCalledWith('SET_POSTS', [ anotherPost ])
+  })
+})
+```
+
+```html /views/ShowPost.vue
+<template>
+  <div v-if="!post">
+    Loading...
+  </div>
+
+  <div v-else>
+    {{ post }}
+  </div>
+</template>
+
+<script lang="ts">
+import { ref, createComponent, computed, watch } from '@vue/composition-api'
+
+import { usePosts } from '@/store/posts'
+import { Post } from '../types'
 
 
-# 6.0 Finishing the App with Post Show page, Editing an Existing Post, Various Other Improvements
+export default createComponent({
+  name: 'ShowPost',
+  
+  components: {
+    // PostViewer,
+  },
 
-We've reached the final section of the series. In this section, we use all the skills we have learned to build out the Post Show page, the location most users will spend most of their time. We also allow users to edit their existing posts. Lastly, we will finish the feature we started building in the first section, and allow users to filter by the time a post was published.
+  setup(props, ctx) {
+    const posts = usePosts(ctx.root.$store)
+    const id = ctx.root.$route.params.id
+    if (!posts.state.all[id]) {
+      posts.actions.getById(parseInt(id, 10))
+    }
+    const post = computed(() => posts.state.all[id])
 
-# 6.1 Adding a Show Posts page
-
-Coding: Create router and use `watch` hook on the $route.params.id to fetch the correct post from the store, or from the API. Write a test for this behavior.
-
-# 6.2 Displaying the Post Content
-
-Coding: Render the post html and make sure it looks good! Add some tests.
-
-# 6.3 Creating an isCurrentUser getter to programatically show the edit button
-
-Coding: Add a `isCurrentUser` getter. Show the Edit button based on this. Tests, of course.
-
-# 6.4 Allowing Posts to be Edited
-
-Coding: Add an EditPost component and route. Use PostWriter to show the post by passing a post prop.
-
-# 6.5 Filtering the Posts based on Publication Date
-
-Coding: Add a filterByDate method. Test it.
-
-# 6.6 Show a Sign Up Form in the Modal 
-
-Coding: Show a Signup Form ih the modal. Include a link to `/users/login`.
-
-# 6.7x   
+    return {
+      post,
+    }
+  },
+})
+</script>
+```
