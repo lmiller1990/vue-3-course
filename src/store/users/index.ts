@@ -21,10 +21,10 @@ export interface State {
 export class UsersState implements State {
   ids = [userA.id, userB.id]
   all = {
-    [userA.id]: userA,
+    [userA.id]: {...userA, isCurrentUser: true},
     [userB.id]: userB,
   }
-  authenticated = false
+  authenticated = true
 }
 
 export class UsersMutations extends Mutations<UsersState> {

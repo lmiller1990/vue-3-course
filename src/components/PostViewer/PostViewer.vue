@@ -11,7 +11,7 @@
               v-if="canEdit"
               class="button is-rounded is-link" 
               data-edit
-              to="editUrl"
+              :to="editUrl"
             >
               <i class="fas fa-edit" />
             </RouterLink>

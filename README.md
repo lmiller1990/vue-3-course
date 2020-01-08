@@ -3378,7 +3378,7 @@ Coding: Use currentUser getter and authorId decide if a post is editable.
   v-if="canEdit"
   class="button is-rounded is-link" 
   data-edit
-  to="editUrl"
+  :to="editUrl"
 >
   <i class="fas fa-edit" />
 </RouterLink>
@@ -3466,4 +3466,55 @@ describe('PostViewer', () => {
     expect(wrapper.find('[data-edit]').exists()).toBe(false)
   })
 })
+```
+
+# 7.4 Editing Posts with the PostWriter Component
+
+Now we've got a link to edit posts (for authorized users) we should go ahead and allow them to edit the post! It's easy, we can basic copy-paste the NewPost component.
+
+
+```
+{
+  path: '/posts/:id/edit',
+  name: 'EditPost',
+  component: EditPost
+}
+```
+
+```EditPost.vue
+<template>
+  <PostWriter
+    :post="post"
+  />
+</template>
+
+<script lang="ts">
+import { createComponent, computed } from '@vue/composition-api'
+
+import { usePosts } from '@/store/posts'
+import { Post } from '../types'
+import PostWriter from '@/components/PostWriter/PostWriter.vue'
+
+
+export default createComponent({
+  name: 'EditPost',
+  
+  components: {
+    PostWriter,
+  },
+
+  setup(props, ctx) {
+    const posts = usePosts(ctx.root.$store)
+    const id = ctx.root.$route.params.id
+    if (!posts.state.all[id]) {
+      posts.actions.getById(parseInt(id, 10))
+    }
+    const post = computed(() => posts.state.all[id])
+
+    return {
+      post,
+    }
+  },
+})
+</script>
 ```
