@@ -3518,3 +3518,51 @@ export default createComponent({
 })
 </script>
 ```
+
+# 7.5 Sorting the Timeline Posts by Date
+
+Let's sort the posts by date! Talk about making it separate to add more filters/ordering later, eg by like. tag...
+
+```ts
+import moment from 'moment';
+
+import { Post } from '@/types';
+import { Period } from './types';
+
+const filterByPeriod = (period: Period, posts: Post[]): Post[] => {
+  if (period === 'Today') {
+    return posts.filter(
+      x => x.created.isSameOrAfter(moment().subtract(1, 'days'))
+    )
+  }
+
+  if (period === 'This Week') {
+    return posts.filter(
+      x => x.created.isSameOrAfter(moment().subtract(7, 'days'))
+    )
+  }
+
+  if (period === 'This Month') {
+    return posts.filter(
+      x => x.created.isSameOrAfter(moment().subtract(1, 'month'))
+    )
+  }
+
+  throw Error(`Period ${period} is not valid`)
+}
+
+export { filterByPeriod } 
+
+```
+
+```ts
+const allPosts = computed(() =>
+  filterByPeriod(activeTab.value, posts.getters.allPosts())
+)
+```
+
+# 7.6 Implementing Log Out
+
+The final thing we will cover is logging out! Another easy one.
+
+# 7.7 Conclusion, Improvements and Summary

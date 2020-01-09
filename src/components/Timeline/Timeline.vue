@@ -49,6 +49,7 @@ import { createComponent, ref, onUpdated, computed } from '@vue/composition-api'
 
 import { usePosts } from '@/store/posts'
 import { Period } from './types'
+import { filterByPeriod } from './filters'
 import TimelineItem from './TimelineItem.vue'
 
 export default createComponent({
@@ -64,15 +65,16 @@ export default createComponent({
     const posts = usePosts(ctx.root.$store)
     posts.actions.fetchAll()
 
-    const allPosts = computed(() => {
-      return posts.getters.allPosts()
-    })
-
     const tabs: Period[] = ['Today', 'This Week', 'This Month']
     const activeTab = ref<Period>('Today')
     const setActiveTab = (tab: Period) => {
       activeTab.value = tab
     }
+
+    const allPosts = computed(() =>
+      filterByPeriod(activeTab.value, posts.getters.allPosts())
+    )
+
 
     const showModal = ref(false)
     const authenticated = computed(() => false)
