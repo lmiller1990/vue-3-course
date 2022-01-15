@@ -16,7 +16,7 @@
     "core-js": "^3.4.3",
     "highlight.js": "^9.17.1",
     "lodash": "^4.17.15",
-    "marked": "^0.8.0",
+    "marked": "^4.0.10",
     "moment": "^2.24.0",
     "node-sass": "^4.13.0",
     "portal-vue": "^2.1.7",
